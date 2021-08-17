@@ -357,11 +357,28 @@ LANGUAGE ~German~
 		END
 		
 		// ulcaster
-		ACTION_IF (FILE_EXISTS_IN_GAME ~AR3901.bcs~) BEGIN
-			EXTEND_TOP ~AR3901.bcs~ ~klatu/baf/ulcasterSpawn.baf~
+		ACTION_IF (GAME_IS bgee) BEGIN
+			ACTION_IF (FILE_EXISTS_IN_GAME ~AR3901.bcs~) BEGIN
+				EXTEND_TOP ~AR3901.bcs~ ~klatu/baf/ulcasterSpawn.baf~
+			END
 		END
-		ACTION_IF (FILE_EXISTS_IN_GAME ~AR9798.bcs~) BEGIN
-			EXTEND_TOP ~AR9798.bcs~ ~klatu/baf/ulcasterSpawn.baf~
+
+		ACTION_IF (GAME_IS tutu tutu_totsc) BEGIN
+			ACTION_IF (FILE_EXISTS_IN_GAME ~FW3901.bcs~) BEGIN
+				EXTEND_TOP ~FW3901.bcs~ ~klatu/baf/ulcasterSpawn.baf~
+			END
+		END
+
+		ACTION_IF (GAME_IS bgt) BEGIN
+			ACTION_IF (FILE_EXISTS_IN_GAME ~AR9798.bcs~) BEGIN
+				EXTEND_TOP ~AR9798.bcs~ ~klatu/baf/ulcasterSpawn.baf~
+			END
+		END
+
+		ACTION_IF (GAME_IS eet) BEGIN
+			ACTION_IF (FILE_EXISTS_IN_GAME ~BG3901.bcs~) BEGIN
+				EXTEND_TOP ~BG3901.bcs~ ~klatu/baf/ulcasterSpawn.baf~
+			END
 		END
 		
 		// BGT transition
