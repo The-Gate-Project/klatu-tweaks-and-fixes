@@ -1,0 +1,36 @@
+
+DEFINE_ACTION_FUNCTION WM_IMPLEMENT_FIX
+	INT_VAR	abilLen = 0x38
+	STR_VAR	res = ~~
+BEGIN
+	ACTION_IF (FILE_EXISTS_IN_GAME ~%res%~) BEGIN
+		COPY_EXISTING ~%res%~ ~override~
+			LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+			PATCH_IF ok BEGIN
+				READ_LONG 0x64 abilOff
+				READ_SHORT 0x68 abilNum
+				READ_LONG 0x6a fxOff
+				FOR (a = 0; a < abilNum; ++a) BEGIN
+					off = abilOff + a * 0x28
+					READ_SHORT (off + 0x1e) fxNum
+					READ_SHORT (off + 0x20) fxIdx
+					FOR (i = fxNum - 1; i >= 0; --i) BEGIN
+						off = fxOff + (fxIdx + i) * 0x30
+						READ_SHORT off opcode
+						PATCH_IF (opcode = 281) BEGIN
+							WRITE_LONG (off + 0x08) 0
+						END
+					END
+				END
+				READ_SHORT 0x70 fxNum
+				FOR (i = fxNum - 1; i >= 0; --i) BEGIN
+					off = fxOff + i * 0x30
+					READ_SHORT off opcode
+					PATCH_IF (opcode = 281) BEGIN
+						WRITE_LONG (off + 0x08) 0
+					END
+				END
+			END
+		BUT_ONLY
+	END
+END

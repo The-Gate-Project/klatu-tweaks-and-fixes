@@ -1,0 +1,9 @@
+
+IF
+	Global("kla#AISorting","GLOBAL",%global_index%)
+THEN
+	RESPONSE #100
+		SetGlobal("kla#AISorting","GLOBAL",0)
+		DisplayStringHead(Myself,@191)
+		ChangeAIScript("",CLASS)
+END

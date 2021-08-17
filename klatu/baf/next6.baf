@@ -1,0 +1,9 @@
+
+
+IF
+	Global(%var_buff%,"LOCALS",%var_buff_val%)										// other
+THEN
+	RESPONSE #100
+		SetGlobal(%var_buff%,"LOCALS",0)
+		DisplayStringHead(Myself,@186)	// ~Buffing done~
+END

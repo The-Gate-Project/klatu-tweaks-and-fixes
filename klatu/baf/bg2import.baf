@@ -1,0 +1,12 @@
+
+IF
+	!Global("kla#book01spawn","GLOBAL",3)
+	OR(2)
+		Global("kla#book01spawn","GLOBAL",2)
+		PartyHasItem("kla#bk01")
+THEN
+	RESPONSE #100
+		ActionOverride("Picture1",CreateItem("kla#bk01",0,0,0))
+		SetGlobal("kla#book01spawn","GLOBAL",3)
+		Continue()
+END

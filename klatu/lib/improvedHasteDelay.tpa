@@ -1,0 +1,47 @@
+
+// simply parses every spell and item ability.
+// if the ability has an improved haste effect, 
+// changes its projectile to 1 (none), if it is currently 79 (invisible travelling).
+DEFINE_ACTION_FUNCTION HD_IMPLEMENT_REMOVE_IMPROVED_HASTE_DELAY
+BEGIN
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF HD_REMOVE_DELAY INT_VAR abilLen = 0x28 projOff = 0x26 END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF HD_REMOVE_DELAY INT_VAR abilLen = 0x38 projOff = 0x2a END
+	BUT_ONLY
+END
+
+DEFINE_PATCH_FUNCTION HD_REMOVE_DELAY
+	INT_VAR abilLen = 0x28
+			projOff = 0x26
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		READ_LONG 0x6a fxOff
+		READ_SHORT 0x70 fxNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			abOff = abilOff + a * abilLen
+			READ_SHORT (abOff + projOff) proj
+			PATCH_IF (proj = 79) BEGIN
+				// ability used delayed projectile (79)
+				READ_SHORT (abOff + 0x1e) afxNum
+				READ_SHORT (abOff + 0x20) afxIdx
+				FOR (i = 0; i < afxNum; ++i) BEGIN
+					// check each effect
+					off = fxOff + (afxIdx + i) * 0x30
+					READ_SHORT off opcode
+					READ_LONG (off + 0x08) param2
+					PATCH_IF (opcode = 16 AND param2 = 1) BEGIN
+						// effect is improved haste
+						WRITE_SHORT (abOff + projOff) 1
+						i = afxNum	// break out of loop
+					END
+				END
+			END
+		END
+	END
+END
+

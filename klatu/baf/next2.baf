@@ -1,0 +1,56 @@
+
+// if 3 is valid, go to 3
+IF
+	Global(%var_buff%,"LOCALS",212)	// did Player2
+	!InPartySlot(Myself,2)		// am not Player3
+	See(Player3)				// can see Player3
+	Range(Player3,6)			// Player3 not too far away
+THEN
+	RESPONSE #100
+		SetGlobal(%var_buff%,"LOCALS",220)	// goto Player3
+END
+
+// 3 isnt valid
+// if 4 is valid, go to 4
+IF
+	Global(%var_buff%,"LOCALS",212)	// did Player2
+	!InPartySlot(Myself,3)		// am not Player4
+	See(Player4)				// can see Player4
+	Range(Player4,6)			// Player4 not too far away
+THEN
+	RESPONSE #100
+		SetGlobal(%var_buff%,"LOCALS",230)	// goto Player4
+END
+
+// 4 isnt valid
+// if 5 is valid, go to 5
+IF
+	Global(%var_buff%,"LOCALS",212)	// did Player2
+	!InPartySlot(Myself,4)		// am not Player5
+	See(Player5)				// can see Player5
+	Range(Player5,6)			// Player5 not too far away
+THEN
+	RESPONSE #100
+		SetGlobal(%var_buff%,"LOCALS",240)	// goto Player5
+END
+
+// 5 isnt valid
+// if 6 is valid, go to 6
+IF
+	Global(%var_buff%,"LOCALS",212)	// did Player2
+	!InPartySlot(Myself,5)		// am not Player6
+	See(Player6)				// can see Player6
+	Range(Player6,6)			// Player6 not too far away
+THEN
+	RESPONSE #100
+		SetGlobal(%var_buff%,"LOCALS",250)	// goto Player6
+END
+
+// 6 isnt valid
+IF
+	Global(%var_buff%,"LOCALS",212)	// did Player2
+THEN
+	RESPONSE #100
+		SetGlobal(%var_buff%,"LOCALS",0)
+		DisplayStringHead(Myself,@186)	// ~Buffing done~
+END

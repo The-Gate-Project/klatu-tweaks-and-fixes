@@ -1,0 +1,11 @@
+IF
+	Global("EntJar1","AR0602",0)
+THEN
+	RESPONSE #100
+		ClearAllActions()
+		SetGlobal("EntJar1","AR0602",1)
+		HideGUI()
+		StartCutSceneMode()
+		StartCutScene("EntJar1")
+		UnhideGUI()
+END

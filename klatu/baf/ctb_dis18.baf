@@ -1,0 +1,11 @@
+IF
+	HPGT(Player6,12)
+	GlobalGT("CbPlayer6DiseasedByCowl","GLOBAL",2)
+	GlobalTimerExpired("CbPlayer6DiseasedDay","GLOBAL")
+THEN
+	RESPONSE #100
+		SetGlobalTimer("CbPlayer6DiseasedDay","GLOBAL",ONE_DAY)
+		ApplySpell(Player6,2063)
+		ApplySpell(Player6,2063)
+		ApplySpell(Player6,2063)
+END

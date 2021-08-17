@@ -1,0 +1,274 @@
+
+
+
+
+DEFINE_ACTION_FUNCTION PI_IMPLEMENT_STANDARDIZE_POISON_IMMUNITY
+BEGIN
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF PI_IMPLEMENT_POISON_IMMUNITY_SPL END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF PI_IMPLEMENT_POISON_IMMUNITY_ITM END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+		LPF PI_IMPLEMENT_POISON_IMMUNITY_CRE END
+	BUT_ONLY
+END
+
+DEFINE_PATCH_FUNCTION PI_IMPLEMENT_POISON_IMMUNITY_ITM BEGIN
+	LPF PI_IMPLEMENT_POISON_IMMUNITY INT_VAR abilLen = 0x38 END
+END
+
+DEFINE_PATCH_FUNCTION PI_IMPLEMENT_POISON_IMMUNITY_SPL BEGIN
+	LPF PI_IMPLEMENT_POISON_IMMUNITY INT_VAR abilLen = 0x28 END
+END
+
+DEFINE_PATCH_FUNCTION PI_IMPLEMENT_POISON_IMMUNITY
+	INT_VAR abilLen = 0x28
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		READ_LONG 0x6a fxOff
+		READ_SHORT 0x70 fxNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			FOR (f = afxNum; f > 0; --f) BEGIN
+				off = fxOff + (afxIdx + f - 1) * 0x30
+				LPF READ_EFFECT INT_VAR off = off
+					RET opcode = opcode
+						target = target
+						dmgResist = param1
+						param2 = param2
+						prob1 = prob1
+						prob2 = prob2
+						sType = sType
+						sBonus = sBonus
+				END
+				PATCH_IF (opcode = 101 AND param2 = 25) BEGIN
+					FOR (g = f - 1; g > 0; --g) BEGIN
+						off = fxOff + (afxIdx + g - 1) * 0x30
+						LPF READ_EFFECT INT_VAR off = off
+							RET opcode = opcode
+								targetB = target
+								param2 = param2
+								prob1B = prob1
+								prob2B = prob2
+								sTypeB = sType
+								sBonusB = sBonus
+						END
+						PATCH_IF (targetB = target AND prob1B = prob1 AND prob2B = prob2 AND sTypeB = sType AND sBonusB = sBonus) BEGIN
+							PATCH_IF (opcode = 173 OR (opcode = 101 AND param2 = 25)) BEGIN
+								LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = g - 1 END
+								f = f - 1
+							END
+						END
+					END
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = f - 1 toIdx = f - 1 RET off = off END
+					WRITE_SHORT off 173
+					WRITE_LONG (off + 0x04) 100
+					WRITE_LONG (off + 0x08) 0
+				END ELSE BEGIN
+					PATCH_IF (opcode = 173) BEGIN
+						immuneFound = 0
+						FOR (g = f - 1; g > 0; --g) BEGIN
+							off = fxOff + (afxIdx + g - 1) * 0x30
+							LPF READ_EFFECT INT_VAR off = off
+								RET opcode = opcode
+									targetB = target
+									param1 = param1
+									param2 = param2
+									prob1B = prob1
+									prob2B = prob2
+									sTypeB = sType
+									sBonusB = sBonus
+							END
+							PATCH_IF (targetB = target AND prob1B = prob1 AND prob2B = prob2 AND sTypeB = sType AND sBonusB = sBonus) BEGIN
+								PATCH_IF (opcode = 173 AND param1 > dmgResist) BEGIN
+									dmgResist = param1
+								END
+								PATCH_IF (opcode = 173 OR (opcode = 101 AND param2 = 25)) BEGIN
+									LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = g - 1 END
+									f = f - 1
+								END
+								PATCH_IF (opcode = 101 AND param2 = 25) BEGIN
+									immuneFound = 1
+								END
+							END
+						END
+						PATCH_IF (dmgResist > 0 OR immuneFound = 1) BEGIN
+							WRITE_LONG (fxOff + (afxIdx + f - 1) * 0x30 + 0x04) 100
+							LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = f - 1 toIdx = f RET off = off END
+							WRITE_SHORT off 101
+							WRITE_LONG (off + 0x04) 0
+							WRITE_LONG (off + 0x08) 25
+						END ELSE BEGIN
+							LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = f - 1 END
+						END
+					END
+				END
+			END
+		END
+		FOR (f = fxNum; f > 0; --f) BEGIN
+			off = fxOff + (f - 1) * 0x30
+			LPF READ_EFFECT INT_VAR off = off
+				RET opcode = opcode
+					target = target
+					dmgResist = param1
+					param2 = param2
+					prob1 = prob1
+					prob2 = prob2
+					sType = sType
+					sBonus = sBonus
+			END
+			PATCH_IF (opcode = 101 AND param2 = 25) BEGIN
+				FOR (g = f - 1; g > 0; --g) BEGIN
+					off = fxOff + (g - 1) * 0x30
+					LPF READ_EFFECT INT_VAR off = off
+						RET opcode = opcode
+							targetB = target
+							param2 = param2
+							prob1B = prob1
+							prob2B = prob2
+							sTypeB = sType
+							sBonusB = sBonus
+					END
+					PATCH_IF (targetB = target AND prob1B = prob1 AND prob2B = prob2 AND sTypeB = sType AND sBonusB = sBonus) BEGIN
+						PATCH_IF (opcode = 173 OR (opcode = 101 AND param2 = 25)) BEGIN
+							LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g - 1 END
+							f = f - 1
+						END
+					END
+				END
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f - 1 toIdx = f - 1 RET off = off END
+				WRITE_SHORT off 173
+				WRITE_LONG (off + 0x04) 100
+				WRITE_LONG (off + 0x08) 0
+			END ELSE BEGIN
+				PATCH_IF (opcode = 173) BEGIN
+					immuneFound = 0
+					FOR (g = f - 1; g > 0; --g) BEGIN
+						off = fxOff + (g - 1) * 0x30
+						LPF READ_EFFECT INT_VAR off = off
+							RET opcode = opcode
+								targetB = target
+								param1 = param1
+								param2 = param2
+								prob1B = prob1
+								prob2B = prob2
+								sTypeB = sType
+								sBonusB = sBonus
+						END
+						PATCH_IF (targetB = target AND prob1B = prob1 AND prob2B = prob2 AND sTypeB = sType AND sBonusB = sBonus) BEGIN
+							PATCH_IF (opcode = 173 AND param1 > dmgResist) BEGIN
+								dmgResist = param1
+							END
+							PATCH_IF (opcode = 173 OR (opcode = 101 AND param2 = 25)) BEGIN
+								LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g - 1 END
+								f = f - 1
+							END
+							PATCH_IF (opcode = 101 AND param2 = 25) BEGIN
+								immuneFound = 1
+							END
+						END
+					END
+					PATCH_IF (dmgResist > 0 OR immuneFound = 1) BEGIN
+						WRITE_LONG (fxOff + (f - 1) * 0x30 + 0x04) 100
+						LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f - 1 toIdx = f RET off = off END
+						WRITE_SHORT off 101
+						WRITE_LONG (off + 0x04) 0
+						WRITE_LONG (off + 0x08) 25
+					END ELSE BEGIN
+						LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = f - 1 END
+					END
+				END
+			END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION PI_IMPLEMENT_POISON_IMMUNITY_CRE BEGIN
+	LPF SANITIZE_CRE RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x2c4 fxOff
+		READ_LONG 0x2c8 fxNum
+		FOR (f = fxNum; f > 0; --f) BEGIN
+			off = fxOff + (f - 1) * 0x108
+			LPF READ_EFFECT_CRE INT_VAR off = off
+				RET opcode = opcode
+					target = target
+					dmgResist = param1
+					param2 = param2
+					prob1 = prob1
+					prob2 = prob2
+					sType = sType
+					sBonus = sBonus
+			END
+			PATCH_IF (opcode = 101 AND param2 = 25) BEGIN
+				FOR (g = f - 1; g > 0; --g) BEGIN
+					off = fxOff + (g - 1) * 0x108
+					LPF READ_EFFECT_CRE INT_VAR off = off
+						RET opcode = opcode
+							targetB = target
+							param2 = param2
+							prob1B = prob1
+							prob2B = prob2
+							sTypeB = sType
+							sBonusB = sBonus
+					END
+					PATCH_IF (targetB = target AND prob1B = prob1 AND prob2B = prob2 AND sTypeB = sType AND sBonusB = sBonus) BEGIN
+						PATCH_IF (opcode = 173 OR (opcode = 101 AND param2 = 25)) BEGIN
+							LPF REMOVE_EFFECT_CRE INT_VAR idx = g - 1 END
+							f = f - 1
+						END
+					END
+				END
+				LPF COPY_EFFECT_CRE INT_VAR idx = f - 1 toIdx = f - 1 RET off = off END
+				WRITE_LONG (off + 0x08) 173
+				WRITE_LONG (off + 0x14) 100
+				WRITE_LONG (off + 0x18) 0
+			END ELSE BEGIN
+				PATCH_IF (opcode = 173) BEGIN
+					immuneFound = 0
+					FOR (g = f - 1; g > 0; --g) BEGIN
+						off = fxOff + (g - 1) * 0x108
+						LPF READ_EFFECT_CRE INT_VAR off = off
+							RET opcode = opcode
+								targetB = target
+								param1 = param1
+								param2 = param2
+								prob1B = prob1
+								prob2B = prob2
+								sTypeB = sType
+								sBonusB = sBonus
+						END
+						PATCH_IF (targetB = target AND prob1B = prob1 AND prob2B = prob2 AND sTypeB = sType AND sBonusB = sBonus) BEGIN
+							PATCH_IF (opcode = 173 AND param1 > dmgResist) BEGIN
+								dmgResist = param1
+							END
+							PATCH_IF (opcode = 173 OR (opcode = 101 AND param2 = 25)) BEGIN
+								LPF REMOVE_EFFECT_CRE INT_VAR idx = g - 1 END
+								f = f - 1
+							END
+							PATCH_IF (opcode = 101 AND param2 = 25) BEGIN
+								immuneFound = 1
+							END
+						END
+					END
+					PATCH_IF (dmgResist > 0 OR immuneFound = 1) BEGIN
+						WRITE_LONG (fxOff + (f - 1) * 0x108 + 0x14) 100
+						LPF COPY_EFFECT_CRE INT_VAR idx = f - 1 toIdx = f RET off = off END
+						WRITE_LONG (off + 0x08) 101
+						WRITE_LONG (off + 0x14) 0
+						WRITE_LONG (off + 0x18) 25
+					END ELSE BEGIN
+						LPF REMOVE_EFFECT_CRE INT_VAR idx = f - 1 END
+					END
+				END
+			END
+		END
+	END
+END

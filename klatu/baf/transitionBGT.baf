@@ -1,0 +1,8 @@
+
+IF
+	PartyHasItem("kla#bk01")
+THEN
+	RESPONSE #100
+		SetGlobal("kla#book01spawn","GLOBAL",2)
+		Continue()
+END

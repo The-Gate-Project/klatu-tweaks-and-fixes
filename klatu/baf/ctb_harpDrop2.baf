@@ -1,0 +1,12 @@
+IF
+	OR(4)
+		HasItem("CBWTNI1a",Myself) // Harp of Myth Drannor
+		HasItem("CBWTNI1b",Myself) // Harp of Myth Drannor
+		HasItem("CBWTNI1c",Myself) // Harp of Myth Drannor
+		HasItem("CBWTNI1d",Myself) // Harp of Myth Drannor
+THEN
+	RESPONSE #100
+		DropInventory()
+		Wait(1)
+		DestroySelf()
+END

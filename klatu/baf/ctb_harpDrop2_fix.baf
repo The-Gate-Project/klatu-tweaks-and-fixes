@@ -1,0 +1,8 @@
+IF
+	HasItem("CBWTNI1a",Myself) // Harp of Myth Drannor
+THEN
+	RESPONSE #100
+		DropInventory()
+		Wait(1)
+		DestroySelf()
+END

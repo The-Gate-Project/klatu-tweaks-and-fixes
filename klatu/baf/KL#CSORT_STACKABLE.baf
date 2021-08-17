@@ -1,0 +1,30 @@
+
+// search all players and containers (slow, but no alternative exists)
+IF
+	Global("kla#AISorting","GLOBAL",%global_index%)
+	PartyHasItem("%outer_item%")
+THEN
+	RESPONSE #100
+		IncrementGlobal("kla#AISortingCount","GLOBAL",1)
+		TakePartyItemNum("%outer_item%",1)
+		DestroyItem("%outer_item%")
+END
+
+IF
+	Global("kla#AISorting","GLOBAL",%global_index%)
+	!Global("kla#AISortingCount","GLOBAL",0)
+THEN
+	RESPONSE #100
+		SetGlobal("kla#AISorting","GLOBAL",%global_index_next%)
+		CreateItemGlobal("kla#AISortingCount","GLOBAL","%outer_item%")
+		DropInventory()		// better than adding to player, which fails when inventory is full
+		SetGlobal("kla#AISortingCount","GLOBAL",0)
+END
+
+IF
+	Global("kla#AISorting","GLOBAL",%global_index%)
+	Global("kla#AISortingCount","GLOBAL",0)
+THEN
+	RESPONSE #100
+		SetGlobal("kla#AISorting","GLOBAL",%global_index_next%)
+END

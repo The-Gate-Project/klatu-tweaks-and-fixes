@@ -1,0 +1,10 @@
+// remove neutral restriction
+// extend top rh#isr.bcs
+IF
+	Alignment(Player1,MASK_GENEUTRAL)			// still fails if evul
+	CheckStatGT(Player1,12,CHR)
+	Global("rh#IsraRomanceCheck","GLOBAL",0)	// works, because this is checked first
+THEN
+	RESPONSE #100
+		SetGlobal("rh#IsraRomanceCheck","GLOBAL",1)
+END

@@ -1,0 +1,269 @@
+
+
+
+// log is too unreliable. we dont know what other effects those spells apply.
+// so we stick to opcode immunity
+
+DEFINE_ACTION_FUNCTION DQ_IMPLEMENT_DROP_EQUIPMENT
+	INT_VAR	opcode = 238
+			requiredDelay = 0
+	STR_VAR logFile = ~~
+			dropRes = ~~
+BEGIN
+//	LAF TRUNCATE_FILE STR_VAR file = EVAL ~%logFile%~ END
+//	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+//		LPF APPLIES_EFFECT_SPL INT_VAR opcode = opcode RET ok = value END
+//		PATCH_IF ok BEGIN
+//			LPF UPDATE_LOG STR_VAR file = EVAL ~%logFile%~ value = EVAL ~%SOURCE_RES%~ END
+//		END
+//	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SANITIZE_SPL RET ok = ok END
+		PATCH_IF ok BEGIN
+			LPF DQ_COMPLEMENT_IMMUNITY
+				INT_VAR abilLen = 0x28
+						opcode = opcode
+				STR_VAR	drop = EVAL ~%dropRes%~
+			//			logFile = EVAL ~%logFile%~
+			END
+			LPF DQ_COMPLEMENT_EFFECT
+				INT_VAR abilLen = 0x28
+						opcode = opcode
+						requiredDelay = requiredDelay
+				STR_VAR	drop = EVAL ~%dropRes%~
+			END
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SANITIZE_ITM RET ok = ok END
+		PATCH_IF ok BEGIN
+			LPF DQ_COMPLEMENT_IMMUNITY
+				INT_VAR abilLen = 0x38
+						opcode = opcode
+				STR_VAR	drop = EVAL ~%dropRes%~
+			//			logFile = EVAL ~%logFile%~
+			END
+			LPF DQ_COMPLEMENT_EFFECT
+				INT_VAR abilLen = 0x38
+						opcode = opcode
+						requiredDelay = requiredDelay
+				STR_VAR	drop = EVAL ~%dropRes%~
+			END
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+		LPF SANITIZE_CRE RET ok = ok END
+		PATCH_IF ok BEGIN
+			LPF DQ_COMPLEMENT_IMMUNITY_CRE
+				INT_VAR opcode = opcode
+				STR_VAR	drop = EVAL ~%dropRes%~
+				//		logFile = EVAL ~%logFile%~
+			END
+		END
+	BUT_ONLY
+END
+
+DEFINE_PATCH_FUNCTION DQ_COMPLEMENT_IMMUNITY
+	INT_VAR abilLen = 0x28
+			opcode = 0
+	STR_VAR	drop = ~~
+		//	logFile = ~~
+BEGIN
+	READ_LONG 0x64 abilOff
+	READ_SHORT 0x68 abilNum
+	READ_LONG 0x6a fxOff
+	FOR (a = 0; a < abilNum; ++a) BEGIN
+		off = abilOff + a * abilLen
+		READ_SHORT (off + 0x1e) afxNum
+		READ_SHORT (off + 0x20) afxIdx
+		LPF DQ_COMPLEMENT_IMMUNITY_ABIL 
+			INT_VAR opcode = opcode
+					abilLen = abilLen
+					abilIdx = a
+					fxIdx = afxIdx
+					fxNum = afxNum
+					isAbil = 1
+			STR_VAR	drop = EVAL ~%dropRes%~
+			//		logFile = EVAL ~%logFile%~
+		END
+	END
+	READ_SHORT 0x70 fxNum
+	LPF DQ_COMPLEMENT_IMMUNITY_ABIL 
+		INT_VAR opcode = opcode
+				abilLen = abilLen
+				abilIdx = 0
+				fxIdx = 0
+				fxNum = fxNum
+				isAbil = 0
+		STR_VAR	drop = EVAL ~%dropRes%~
+		//		logFile = EVAL ~%logFile%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION DQ_COMPLEMENT_IMMUNITY_ABIL
+	INT_VAR opcode = opcode
+			abilLen = 0x28
+			abilIdx = 0
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 1
+	STR_VAR	drop = EVAL ~%dropRes%~
+	//		logFile = EVAL ~%logFile%~
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + (fxIdx + f) * 0x30
+		READ_SHORT off op
+		READ_LONG (off + 0x08) param2
+		READ_ASCII (off + 0x14) res (8) NULL
+		PATCH_IF (op = 101 AND param2 = opcode) BEGIN
+			PATCH_IF isAbil BEGIN
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+				WRITE_SHORT off 206
+				WRITE_LONG (off + 0x04) 0xffffffff
+				WRITE_LONG (off + 0x08) 0
+				WRITE_ASCIIE (off + 0x14) ~%drop%~ #8
+			END ELSE BEGIN
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+				WRITE_SHORT off 206
+				WRITE_LONG (off + 0x04) 0xffffffff
+				WRITE_LONG (off + 0x08) 0
+				WRITE_ASCIIE (off + 0x14) ~%drop%~ #8
+			END
+		END
+		
+	//	PATCH_IF (op = 206) BEGIN
+	//		LPF GET_FILE_SIZE STR_VAR file = EVAL ~%logFile%~ RET logLen = value END
+	//		FOR (i = 0; i < logLen; i += 8) BEGIN
+	//			LPF READ_LOG INT_VAR off = i STR_VAR file = EVAL ~%logFile%~ RET entry = value END
+	//			PATCH_IF (~%res%~ STRING_EQUAL_CASE ~%entry%~) BEGIN
+	//				PATCH_IF isAbil BEGIN
+	//					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+	//					WRITE_LONG (off + 0x04) 0xffffffff
+	//					WRITE_LONG (off + 0x08) 0
+	//					WRITE_ASCIIE (off + 0x14) ~%drop%~ #8
+	//				END ELSE BEGIN
+	//					LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+	//					WRITE_LONG (off + 0x04) 0xffffffff
+	//					WRITE_LONG (off + 0x08) 0
+	//					WRITE_ASCIIE (off + 0x14) ~%drop%~ #8
+	//				END
+	//			END
+	//		END
+	//	END
+		
+	END
+END
+
+DEFINE_PATCH_FUNCTION DQ_COMPLEMENT_IMMUNITY_CRE
+	INT_VAR opcode = 0
+	STR_VAR	drop = ~~
+		//	logFile = ~~
+BEGIN
+	READ_LONG 0x2c4 fxOff
+	READ_LONG 0x2c8 fxNum
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + f * 0x108
+		READ_LONG (off + 0x08) op
+		READ_LONG (off + 0x18) param2
+		PATCH_IF (op = 101 AND param2 = opcode) BEGIN
+			LPF COPY_EFFECT_CRE INT_VAR idx = f toIdx = f RET off = off END
+			WRITE_LONG (off + 0x08) 206
+			WRITE_LONG (off + 0x14) 0xffffffff
+			WRITE_LONG (off + 0x18) 0
+			WRITE_ASCIIE (off + 0x28) ~%drop%~ #8
+		END
+		
+	//	PATCH_IF (op = 206) BEGIN
+	//		READ_ASCII (off + 0x28) res (8) NULL
+	//		LPF GET_FILE_SIZE STR_VAR file = EVAL ~%logFile%~ RET logLen = value END
+	//		FOR (i = 0; i < logLen; i += 8) BEGIN
+	//			PATCH_IF (~%resB%~ STRING_EQUAL_CASE ~%res%~) BEGIN
+	//				LPF COPY_EFFECT_CRE INT_VAR idx = f toIdx = f RET off = off END
+	//				WRITE_LONG (off + 0x14) 0xffffffff
+	//				WRITE_LONG (off + 0x18) 0
+	//				WRITE_ASCIIE (off + 0x28) ~%drop%~ #8
+	//			END
+	//		END
+	//	END
+		
+	END
+END
+
+DEFINE_PATCH_FUNCTION DQ_COMPLEMENT_EFFECT
+	INT_VAR	abilLen = 0x28
+			opcode = 0
+			requiredDelay = 0
+	STR_VAR	drop = ~~
+BEGIN
+	READ_LONG 0x64 abilOff
+	READ_SHORT 0x68 abilNum
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (a = 0; a < abilNum; ++a) BEGIN
+		off = abilOff + a * abilLen
+		READ_SHORT (off + 0x1e) afxNum
+		READ_SHORT (off + 0x20) afxIdx
+		LPF DQ_COMPLEMENT_EFFECT_ABIL
+			INT_VAR abilLen = abilLen
+					abilIdx = a
+					isAbil = 1
+					fxIdx = afxIdx
+					fxNum = afxNum
+					opcode = opcode
+					requiredDelay = requiredDelay
+			STR_VAR	drop = EVAL ~%drop%~
+		END
+	END
+	READ_SHORT 0x70 fxNum
+	LPF DQ_COMPLEMENT_EFFECT_ABIL
+		INT_VAR abilLen = abilLen
+				abilIdx = 0
+				isAbil = 0
+				fxIdx = 0
+				fxNum = fxNum
+				opcode = opcode
+				requiredDelay = requiredDelay
+		STR_VAR	drop = EVAL ~%drop%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION DQ_COMPLEMENT_EFFECT_ABIL
+	INT_VAR	abilLen = 0x28
+			abilIdx = 0
+			isAbil = 1
+			fxIdx = 0
+			fxNum = 0
+			opcode = 0
+			requiredDelay = 0
+	STR_VAR	drop = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + (fxIdx + f) * 0x30
+		READ_SHORT off op
+		READ_BYTE (off + 0x0c) timing
+		READ_LONG (off + 0x0e) delay
+		PATCH_IF (op = opcode && ((requiredDelay = 0) || (timing > 2 && timing < 9 && delay > 0))) BEGIN
+			PATCH_IF isAbil BEGIN
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+			END ELSE BEGIN
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+			END
+			WRITE_SHORT off 177						// use eff
+			WRITE_LONG (off + 0x04) 0				// ANYONE
+			WRITE_LONG (off + 0x08) 2				// EA
+			WRITE_ASCIIE (off + 0x14) ~%drop%~ #8	// drop stuff eff
+			PATCH_IF (timing < 3 || timing > 8 || delay = 0) BEGIN	// instant
+				WRITE_BYTE (off + 0x0c) 1	// insta perm
+				WRITE_LONG (off + 0x0e) 0	// no duration
+			END ELSE BEGIN											// delayed
+				WRITE_BYTE (off + 0x0c) 4	// delay perm
+				WRITE_LONG (off + 0x0e) (delay - requiredDelay)
+			END
+		END
+	END
+END
+
+
+

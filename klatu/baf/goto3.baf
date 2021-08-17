@@ -1,0 +1,7 @@
+
+IF
+	Global(%var_buff%,"LOCALS",%var_pass2%)							// other
+THEN
+	RESPONSE #100
+		SetGlobal(%var_buff%,"LOCALS",%var_pass3%)					// do 3rd pass
+END

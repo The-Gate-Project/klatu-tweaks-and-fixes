@@ -1,0 +1,120 @@
+
+
+
+
+
+DEFINE_ACTION_FUNCTION SPELL
+	STR_VAR nam = ~~
+			res = ~~
+	RET		con
+			act
+BEGIN
+	OUTER_SET ids = IDS_OF_SYMBOL (SPELL ~%nam%~)
+	ACTION_IF (ids < 0) BEGIN
+		OUTER_SPRINT con ~HaveSpellRES("%res%")~
+		OUTER_SPRINT act ~ReallyForceSpellRES("%res%",%var_player%)
+			RemoveSpellRES("%res%")
+			Continue()~
+	END ELSE BEGIN
+		OUTER_SPRINT con ~HaveSpell(%nam%)~
+		OUTER_SPRINT act ~ReallyForceSpell(%var_player%,%nam%)
+			RemoveSpell(%nam%)
+			Continue()~
+	END
+END
+
+DEFINE_ACTION_FUNCTION SPELL_NOT
+	STR_VAR nam = ~~
+			res = ~~
+	RET		con
+BEGIN
+	OUTER_SET ids = IDS_OF_SYMBOL (SPELL ~%nam%~)
+	ACTION_IF (ids < 0) BEGIN
+		OUTER_SPRINT con ~!HaveSpellRES("%res%")~
+	END ELSE BEGIN
+		OUTER_SPRINT con ~!HaveSpell(%nam%)~
+	END
+END
+
+DEFINE_ACTION_FUNCTION STAT_GT
+	INT_VAR	val = 0
+	STR_VAR nam = ~~
+	RET		con
+BEGIN
+	OUTER_SET ids = IDS_OF_SYMBOL (STATS ~%nam%~)
+	ACTION_IF (ids < 0) BEGIN
+		OUTER_SPRINT con ~~
+	END ELSE BEGIN
+		OUTER_SPRINT con ~CheckStatGT(%var_player%,%val%,%nam%)~
+	END
+END
+
+DEFINE_ACTION_FUNCTION STAT_NOT_GT
+	INT_VAR	val = 0
+	STR_VAR nam = ~~
+	RET		con
+BEGIN
+	OUTER_SET ids = IDS_OF_SYMBOL (STATS ~%nam%~)
+	ACTION_IF (ids < 0) BEGIN
+		OUTER_SPRINT con ~~
+	END ELSE BEGIN
+		OUTER_SPRINT con ~!CheckStatGT(%var_player%,%val%,%nam%)~
+	END
+END
+
+DEFINE_ACTION_FUNCTION STAT
+	INT_VAR	val = 0
+	STR_VAR nam = ~~
+	RET		con
+BEGIN
+	OUTER_SET ids = IDS_OF_SYMBOL (STATS ~%nam%~)
+	ACTION_IF (ids < 0) BEGIN
+		OUTER_SPRINT con ~~
+	END ELSE BEGIN
+		OUTER_SPRINT con ~CheckStat(%var_player%,%val%,%nam%)~
+	END
+END
+
+DEFINE_ACTION_FUNCTION STAT_NOT
+	INT_VAR	val = 0
+	STR_VAR nam = ~~
+	RET		con
+BEGIN
+	OUTER_SET ids = IDS_OF_SYMBOL (STATS ~%nam%~)
+	ACTION_IF (ids < 0) BEGIN
+		OUTER_SPRINT con ~~
+	END ELSE BEGIN
+		OUTER_SPRINT con ~!CheckStat(%var_player%,%val%,%nam%)~
+	END
+END
+
+DEFINE_ACTION_FUNCTION STATE
+	INT_VAR	val = 0
+	STR_VAR nam = ~~
+	RET		con
+BEGIN
+	OUTER_SET ids = IDS_OF_SYMBOL (STATE ~%nam%~)
+	ACTION_IF (ids < 0) BEGIN
+		OUTER_SPRINT con ~~
+	END ELSE BEGIN
+		OUTER_SPRINT con ~StateCheck(%var_player%,%nam%)~
+	END
+END
+
+
+DEFINE_ACTION_FUNCTION STATE_NOT
+	INT_VAR	val = 0
+	STR_VAR nam = ~~
+	RET		con
+BEGIN
+	OUTER_SET ids = IDS_OF_SYMBOL (STATE ~%nam%~)
+	ACTION_IF (ids < 0) BEGIN
+		OUTER_SPRINT con ~~
+	END ELSE BEGIN
+		OUTER_SPRINT con ~!StateCheck(%var_player%,%nam%)~
+	END
+END
+
+
+
+

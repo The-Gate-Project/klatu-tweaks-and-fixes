@@ -1,0 +1,25 @@
+
+
+
+// if boolSilence != 0, the spell will be unaffected by silence, as well
+DEFINE_ACTION_FUNCTION UW_IMPLEMENT_UNAFFECT_SPELLS
+	INT_VAR spellType = 4
+			boolSilence = 0
+BEGIN
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SANITIZE_SPL RET ok = ok END
+		PATCH_IF ok = ok BEGIN
+			READ_SHORT 0x1c type
+			PATCH_IF (type = spellType) BEGIN
+				// unaffected by wild surges
+				READ_BYTE 0x19 b
+				WRITE_BYTE 0x19 (b BOR 0b11000000)
+				PATCH_IF boolSilence BEGIN
+					READ_BYTE 0x1b b
+					WRITE_BYTE 0x1b (b BOR 0b00000010)
+				END
+			END
+		END
+	BUT_ONLY
+END
+

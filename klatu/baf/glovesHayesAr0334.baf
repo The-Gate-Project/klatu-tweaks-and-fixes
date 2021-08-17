@@ -1,0 +1,10 @@
+IF
+	Global("kla#glvh","GLOBAL",1)
+	Global("ForgeStuff","GLOBAL",1)
+THEN
+	RESPONSE #100
+		SetGlobal("ForgeStuff", "GLOBAL", 0)
+		TakePartyItem("ohnrobe1") // hayes robe
+		GiveItemCreate("kla#glvh.itm", Player1, 0, 0, 0)
+		ActionOverride("wsmith01",StartDialogueNoSet([PC]))
+END

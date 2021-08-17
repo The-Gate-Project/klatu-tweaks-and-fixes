@@ -1,0 +1,3 @@
+spells that grant permanent effects should always use 
+secondary type 4 (MAGICATTACK), because it cannot be 
+deflected or reflected or absorbed by magical protections.

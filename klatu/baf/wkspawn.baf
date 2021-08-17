@@ -1,0 +1,9 @@
+
+IF
+	Global("kla#book01spawn","GLOBAL",0)
+THEN
+	RESPONSE #100
+		ActionOverride("Shelf4",CreateItem("kla#bk01",0,0,0))
+		SetGlobal("kla#book01spawn","GLOBAL",1)
+		Continue()
+END

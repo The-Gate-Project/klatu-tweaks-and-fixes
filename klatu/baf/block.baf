@@ -1,0 +1,8 @@
+
+IF
+	Global(%var_buff%,"LOCALS",%var_buff_val%)
+	%con%
+THEN
+	RESPONSE #100
+		%act%
+END

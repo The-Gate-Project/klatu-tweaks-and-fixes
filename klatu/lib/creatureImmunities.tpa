@@ -1,0 +1,1403 @@
+
+
+
+/*
+	Applies immunitie to all creatures based on their identities. 
+	Undead become to death effects not specifically designed with them in mind
+	Constructs cannot be poisoned
+	Incorporeal creatures cannot be entangled
+	Beholders cannot be backstabbed
+	Infernal and Celestial creatures can see through invisibility 
+	Doppelgangers cannot be charmed
+	Dragons cannot be put to sleep
+	Flying creatures are immune to Grease
+	Liches cannot be polymorphed
+	Creatures not made of flesh are unaffected by Flesh to Stone
+	
+	etc...
+	
+	Most of these are already implemented in the base game. 
+	This is not true for many mods though. 
+	
+	Most of the information about creature immunities were compiled from
+	older editions of the Monster Manual. Others were inferred (oozes have
+	no brains to be devoured or eyes to be blinded, constructs have no
+	minds to be affected, flying creatures cannot be greased, etc...)
+	
+	Identities are handled inclusively. This means that a wraith spider
+	registers as both undead, incorporeal and as a spider.
+	
+	Note that This component only adds immunities. It does not remove any. 
+	So if Flesh Golems are already immune to Flesh to Stone, they 
+	will remain so. 
+	
+	
+*/
+
+
+DEFINE_ACTION_FUNCTION CI_IMPLEMENT_CREATURE_IMMUNITIES
+	STR_VAR effSlay = ~~
+			effAnim = ~~
+BEGIN
+	
+	PRINT ~>>> Please be patient... <<<~
+	
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF CI_IMPLEMENT_IMMUNITY_DEATH INT_VAR abilLen = 0x28 STR_VAR effSlay = EVAL ~%effSlay%~ effAnim = EVAL ~%effAnim%~ END
+	BUT_ONLY
+	
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF CI_IMPLEMENT_IMMUNITY_DEATH INT_VAR abilLen = 0x38 STR_VAR effSlay = EVAL ~%effSlay%~ effAnim = EVAL ~%effAnim%~ END
+	BUT_ONLY
+	
+	COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+		LPF SANITIZE_CRE RET ok = ok END
+		PATCH_IF ok BEGIN
+			// exclude hexxat, familiars, and bannor
+			PATCH_IF NOT (
+				(~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohbbanno~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohhex8~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohhex9~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohhex10~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohhex11~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohhex13~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohhex15~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohhex25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famcat~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famcat25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famdog~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famdog25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famdus25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famdust~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famfai25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famfair~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famfer~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famfer25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famfire~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famimp~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famimp25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famlight~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~fammist~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~fampsd~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~fampsd25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famqua25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famquas~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famrab~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famrab25~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famrad~)
+				OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~famwar~)
+			) BEGIN
+				LPF CI_IMPLEMENT_CRE END
+			END
+		END
+		
+	BUT_ONLY
+	
+	// known duergar
+	ACTION_FOR_EACH cre IN 
+		~AR18DWAF.cre~
+		~BPDUER01.cre~
+		~BPDUER02.cre~
+		~BPDUER03.cre~
+		~DADUER1.cre~
+		~DADUER2.cre~
+		~DADUER3.cre~
+		~DADUER4.cre~
+		~DUEARC01.cre~
+		~DUEGAU01.cre~
+		~DUEGAU02.cre~
+		~DUERGAR.cre~
+		~DUERGAR1.cre~
+		~DUERGAR2.cre~
+		~DUERGAR2.cre~
+		~O#LLDUE1.cre~
+		~O#LLDUE2.cre~
+		~O#LLDUER.cre~
+		~RECKON.cre~
+		~SEWDUE01.cre~
+		~SEWDUE02.cre~
+		~SEWYAG01.cre~
+		~SCDUR.cre~
+		~DUECLA01.cre~
+	BEGIN
+		ACTION_IF FILE_EXISTS_IN_GAME ~%cre%~ THEN BEGIN
+			COPY_EXISTING ~%cre%~ ~override~
+				LPF SANITIZE_CRE RET ok = ok END
+				PATCH_IF ok BEGIN
+					LPF CI_APPLY_IMMUNITY_PARALYZE_CRE END
+					LPF CI_APPLY_IMMUNITY_POISON_CRE END
+				END
+			BUT_ONLY
+		END
+	END
+	
+	// hexxat's amulets
+	ACTION_FOR_EACH itm IN ~ohhexam0.itm~ ~ohhexam1.itm~ ~ohhexam2.itm~ ~ohhexam3.itm~ ~ohhexam4.itm~ ~ohhexam5.itm~ BEGIN
+		ACTION_IF FILE_EXISTS_IN_GAME ~%itm%~ THEN BEGIN
+			COPY_EXISTING ~%itm%~ ~override~
+				LPF SANITIZE_ITM RET ok = ok END
+				PATCH_IF ok BEGIN
+					LPF CI_APPLY_IMMUNITY_MIND_ITM END
+					LPF CI_APPLY_IMMUNITY_POISON_ITM END
+					LPF CI_APPLY_IMMUNITY_DISEASE_ITM END
+					LPF CI_APPLY_IMMUNITY_ENERGY_ITM END
+				//	LPF CI_APPLY_IMMUNITY_ABILITY_DRAIN_ITM END		// conflicts conceptually
+					LPF CI_APPLY_IMMUNITY_FATIGUE_ITM END
+					LPF CI_APPLY_IMMUNITY_INTOXICATION_ITM END
+				END
+			BUT_ONLY
+		END
+	END
+	
+END
+
+DEFINE_PATCH_FUNCTION CI_IMPLEMENT_IMMUNITY_DEATH
+	INT_VAR abilLen = 0x28
+	STR_VAR effSlay = ~~
+			effAnim = ~~
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		READ_LONG 0x6a fxOff
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			abOff = abilOff + a * abilLen
+			READ_SHORT (abOff + 0x1e) afxNum
+			READ_SHORT (abOff + 0x20) afxIdx
+			LPF CI_IMPLEMENT_IMMUNITY_DEATH_ABIL
+				INT_VAR abilLen = abilLen
+						abilIdx = a
+						isAbil = 1
+						fxIdx = afxIdx
+						fxNum = afxNum
+				STR_VAR effSlay = EVAL ~%effSlay%~
+						effAnim = EVAL ~%effAnim%~
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF CI_IMPLEMENT_IMMUNITY_DEATH_ABIL
+			INT_VAR abilLen = abilLen
+					abilIdx = 0
+					isAbil = 0
+					fxIdx = 0
+					fxNum = fxNum
+			STR_VAR effSlay = EVAL ~%effSlay%~
+					effAnim = EVAL ~%effAnim%~
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_IMPLEMENT_IMMUNITY_DEATH_ABIL
+	INT_VAR abilLen = 0x28
+			abilIdx = 0
+			isAbil = 1
+			fxIdx = 0
+			fxNum = 0
+	STR_VAR effSlay = ~~
+			effAnim = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + (fxIdx + f) * 0x30
+		READ_SHORT off op
+		READ_LONG (off + 0x04) pa1
+		READ_LONG (off + 0x08) pa2
+		READ_BYTE (off + 0x0c) timing
+		READ_LONG (off + 0x0e) delay
+		PATCH_IF (op = 55 AND pa1 = 0 AND pa2 = 2) BEGIN
+			PATCH_IF isAbil BEGIN
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+			END ELSE BEGIN
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+			END
+			WRITE_SHORT off 177
+			WRITE_LONG (off + 0x04) 4		// UNDEAD
+			WRITE_LONG (off + 0x08) 3		// GENERAL
+			WRITE_ASCIIE (off + 0x14) ~%effAnim%~ #8
+			PATCH_IF (timing < 3 || timing > 8 || delay = 0) BEGIN	// instant
+				WRITE_BYTE (off + 0x0c) 1	// insta perm
+			END ELSE BEGIN											// delayed
+				WRITE_BYTE (off + 0x0c) 4	// delay perm
+			END
+			PATCH_IF isAbil BEGIN
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+				WRITE_ASCIIE (off + 0x14) ~%effSlay%~ #8
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+				WRITE_LONG (off + 0x04) 144	// GOLEM
+				WRITE_LONG (off + 0x08) 4		// RACE
+				WRITE_ASCIIE (off + 0x14) ~%effAnim%~ #8
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+				WRITE_ASCIIE (off + 0x14) ~%effSlay%~ #8
+			END ELSE BEGIN
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+				WRITE_ASCIIE (off + 0x14) ~%effSlay%~ #8
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+				WRITE_LONG (off + 0x04) 144	// GOLEM
+				WRITE_LONG (off + 0x08) 4		// RACE
+				WRITE_ASCIIE (off + 0x14) ~%effAnim%~ #8
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+				WRITE_ASCIIE (off + 0x14) ~%effSlay%~ #8
+			END
+		END
+	END
+END
+
+/*
+DEFINE_PATCH_FUNCTION CI_IMPLEMENT_IMMUNITY_DEATH
+	INT_VAR abilLen = 0x28
+	STR_VAR effSlay = ~~
+			effAnim = ~~
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		READ_LONG 0x6a fxOff
+		READ_SHORT 0x70 fxNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			abOff = abilOff + a * abilLen
+			READ_SHORT (abOff + 0x1e) afxNum
+			READ_SHORT (abOff + 0x20) afxIdx
+			FOR (f = 0; f < afxNum; ++f) BEGIN
+				fOff = fxOff + (afxIdx + f) * 0x30
+				READ_SHORT fOff op
+				READ_LONG (fOff + 0x04) pa1
+				READ_LONG (fOff + 0x08) pa2
+				PATCH_IF (op = 55 AND pa1 = 0 AND pa2 = 2) BEGIN
+					// slay anyone
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = f toIdx = f RET fOff = off END
+					WRITE_SHORT fOff 177
+					WRITE_LONG (fOff + 0x04) 4		// UNDEAD
+					WRITE_LONG (fOff + 0x08) 3		// GENERAL
+					WRITE_BYTE (fOff + 0x0c) 0
+					WRITE_ASCIIE (fOff + 0x14) ~%effSlay%~ #8
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen  abilIdx = a idx = f toIdx = f RET fOff = off END
+					WRITE_SHORT fOff 177
+					WRITE_LONG (fOff + 0x04) 4		// UNDEAD
+					WRITE_LONG (fOff + 0x08) 3		// GENERAL
+					WRITE_BYTE (fOff + 0x0c) 0
+					WRITE_ASCIIE (fOff + 0x14) ~%effAnim%~ #8
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = f toIdx = f RET fOff = off END
+					WRITE_SHORT fOff 177
+					WRITE_LONG (fOff + 0x04) 144	// GOLEM
+					WRITE_LONG (fOff + 0x08) 4		// RACE
+					WRITE_BYTE (fOff + 0x0c) 0
+					WRITE_ASCIIE (fOff + 0x14) ~%effSlay%~ #8
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = f toIdx = f RET fOff = off END
+					WRITE_SHORT fOff 177
+					WRITE_LONG (fOff + 0x04) 144	// GOLEM
+					WRITE_LONG (fOff + 0x08) 4		// RACE
+					WRITE_BYTE (fOff + 0x0c) 0
+					WRITE_ASCIIE (fOff + 0x14) ~%effAnim%~ #8
+					f += 4
+					afxNum += 4
+				END
+			END
+		END
+		FOR (f = 0; f < fxNum; ++f) BEGIN
+			fOff = fxOff + f * 0x30
+			READ_SHORT fOff op
+			READ_LONG (fOff + 0x04) pa1
+			READ_LONG (fOff + 0x08) pa2
+			PATCH_IF (op = 55 AND pa1 = 0 AND pa2 = 2) BEGIN
+				// slay anyone
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET fOff = off END
+				WRITE_SHORT fOff 177
+				WRITE_LONG (fOff + 0x04) 4		// UNDEAD
+				WRITE_LONG (fOff + 0x08) 3		// GENERAL
+				WRITE_BYTE (fOff + 0x0c) 0
+				WRITE_ASCIIE (fOff + 0x14) ~%effSlay%~ #8
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET fOff = off END
+				WRITE_SHORT fOff 177
+				WRITE_LONG (fOff + 0x04) 4		// UNDEAD
+				WRITE_LONG (fOff + 0x08) 3		// GENERAL
+				WRITE_BYTE (fOff + 0x0c) 0
+				WRITE_ASCIIE (fOff + 0x14) ~%effAnim%~ #8
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET fOff = off END
+				WRITE_SHORT fOff 177
+				WRITE_LONG (fOff + 0x04) 144	// GOLEM
+				WRITE_LONG (fOff + 0x08) 4		// RACE
+				WRITE_BYTE (fOff + 0x0c) 0
+				WRITE_ASCIIE (fOff + 0x14) ~%effSlay%~ #8
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET fOff = off END
+				WRITE_SHORT fOff 177
+				WRITE_LONG (fOff + 0x04) 144	// GOLEM
+				WRITE_LONG (fOff + 0x08) 4		// RACE
+				WRITE_BYTE (fOff + 0x0c) 0
+				WRITE_ASCIIE (fOff + 0x14) ~%effAnim%~ #8
+				f += 4
+				fxNum += 4
+			END
+		END
+	END
+END
+
+
+*/
+
+
+DEFINE_PATCH_FUNCTION CI_IMPLEMENT_CRE BEGIN
+	
+	READ_LONG 0x28 animID
+	LOOKUP_IDS_SYMBOL_OF_INT anim ~animate~ animID
+	
+	READ_BYTE 0x271 gen
+	READ_BYTE 0x272 rac
+	READ_BYTE 0x273 cla
+	READ_BYTE 0x275 sex
+	LOOKUP_IDS_SYMBOL_OF_INT general ~general~ gen
+	LOOKUP_IDS_SYMBOL_OF_INT race ~race~ rac
+	LOOKUP_IDS_SYMBOL_OF_INT class ~class~ cla
+	LOOKUP_IDS_SYMBOL_OF_INT gender ~gender~ sex
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~DEATH_KNIGHT~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SKELETON~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHOUL~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~REVEANT~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHAST~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SHADOW~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SPIDER_WRAITH~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~ZOMBIE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~LICH~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~DEMILICH~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~VAMPIRE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~VAMPIRE_FEMALE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~BODHI~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_LICHBLACK~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_MUMMY~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_SKELETON0~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_SKELETONA~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_SKELETONB~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_WIGHT~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_WIGHT2~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_WIGHT3~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~LICH_WHITE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHOST~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHOUL_GREATER~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHAST_GREATER~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHOST_SHADOW~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHOST_SHADE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~ZOMBIE_LESSER~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~ZOMBIE_GREATER~)
+		OR (~%general%~ STRING_EQUAL_CASE ~UNDEAD~)
+		OR (~%race%~ STRING_EQUAL_CASE ~GHOUL~)
+		OR (~%race%~ STRING_EQUAL_CASE ~SKELETON~)
+		OR (~%race%~ STRING_EQUAL_CASE ~VAMPIRE~)
+		OR (~%race%~ STRING_EQUAL_CASE ~VAMPYRE~)
+		OR (~%race%~ STRING_EQUAL_CASE ~SHADOW~)
+		OR (~%race%~ STRING_EQUAL_CASE ~SPECTRE~)
+		OR (~%race%~ STRING_EQUAL_CASE ~WRAITH~)
+		OR (~%race%~ STRING_EQUAL_CASE ~ZOMBIE~)
+		OR (~%race%~ STRING_EQUAL_CASE ~LICH~)
+		OR (~%race%~ STRING_EQUAL_CASE ~DEMILICH~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GHOUL~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GHOUL_REVEANT~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GHOUL_GHAST~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SKELETON~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SKELETON_WARRIOR~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SKELETON_BANEGUARD~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPIDER_WRAITH~)
+		OR (~%class%~ STRING_EQUAL_CASE ~WOLF_VAMPIRIC~)
+		OR (~%class%~ STRING_EQUAL_CASE ~DEATHKNIGHT~)
+		OR (~%class%~ STRING_EQUAL_CASE ~VAMPIRE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~VAMPYRE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SHADOW~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPECTRE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~WRAITH~)
+		OR (~%class%~ STRING_EQUAL_CASE ~ZOMBIE_NORMAL~))
+	BEGIN
+		// is undead
+		LPF CI_APPLY_IMMUNITY_MIND_CRE END
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+		LPF CI_APPLY_IMMUNITY_DISEASE_CRE END
+		LPF CI_APPLY_IMMUNITY_ENERGY_CRE END
+		LPF CI_APPLY_IMMUNITY_ABILITY_DRAIN_CRE END
+		LPF CI_APPLY_IMMUNITY_FATIGUE_CRE END
+		LPF CI_APPLY_IMMUNITY_INTOXICATION_CRE END
+		PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~LICH~)
+			OR (~%anim%~ STRING_EQUAL_CASE ~IC_LICHBLACK~)
+			OR (~%anim%~ STRING_EQUAL_CASE ~LICH_WHITE~)
+			OR (~%race%~ STRING_EQUAL_CASE ~LICH~)) BEGIN
+			// is lich
+			LPF CI_APPLY_IMMUNITY_POLYMORPH_CRE END
+		END
+		PATCH_IF (~%race%~ STRING_EQUAL_CASE ~DEMILICH~) BEGIN
+			// is demilich
+			LPF CI_APPLY_IMMUNITY_POLYMORPH_CRE END
+			LPF CI_APPLY_IMMUNITY_PETRIFICATION_CRE END
+		END
+		PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~SKELETON~)
+			OR (~%anim%~ STRING_EQUAL_CASE ~IC_SKELETON0~)
+			OR (~%anim%~ STRING_EQUAL_CASE ~IC_SKELETONA~)
+			OR (~%anim%~ STRING_EQUAL_CASE ~IC_SKELETONB~)
+			OR (~%race%~ STRING_EQUAL_CASE ~SKELETON~)
+			OR (~%class%~ STRING_EQUAL_CASE ~SKELETON~)
+			OR (~%class%~ STRING_EQUAL_CASE ~SKELETON_WARRIOR~)
+			OR (~%class%~ STRING_EQUAL_CASE ~SKELETON_BANEGUARD~)
+		) BEGIN
+			// is skeleton. no flesh
+			LPF CI_APPLY_IMMUNITY_PETRIFICATION_CRE END
+		END
+		PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~DEATH_KNIGHT~)
+			OR (~%class%~ STRING_EQUAL_CASE ~DEATHKNIGHT~)) BEGIN
+			// is death knight
+			LPF CI_APPLY_IMMUNITY_TURN_CRE END
+		END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~GOLEM_IRON~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GOLEM_CLAY~)
+		OR (~%race%~ STRING_EQUAL_CASE ~GOLEM~)
+		OR (~%race%~ STRING_EQUAL_CASE ~STATUE~)
+		OR (~%race%~ STRING_EQUAL_CASE ~SWORD~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GOLEM_IRON~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GOLEM_FLESH~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GOLEM_STONE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GOLEM_CLAY~))
+	BEGIN
+		// is construct
+		LPF CI_APPLY_IMMUNITY_MIND_CRE END
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+		LPF CI_APPLY_IMMUNITY_DISEASE_CRE END
+		LPF CI_APPLY_IMMUNITY_ENERGY_CRE END
+		LPF CI_APPLY_IMMUNITY_ABILITY_DRAIN_CRE END
+		LPF CI_APPLY_IMMUNITY_FATIGUE_CRE END
+		LPF CI_APPLY_IMMUNITY_INTOXICATION_CRE END
+		PATCH_IF NOT (~%class%~ STRING_EQUAL_CASE ~GOLEM_FLESH~) BEGIN
+			// is not flesh golem
+			LPF CI_APPLY_IMMUNITY_PETRIFICATION_CRE END
+		END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~SLIME_GREEN~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SLIME_OLIVE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SLIME_MUSTARD~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SLIME_OCHRE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GRAY_OOZE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SLIME~)
+		OR (~%class%~ STRING_EQUAL_CASE ~OLIVE_SLIME~)
+		OR (~%class%~ STRING_EQUAL_CASE ~MUSTARD_JELLY~)
+		OR (~%class%~ STRING_EQUAL_CASE ~OCRE_JELLY~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GREY_OOZE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~GREEN_SLIME~))
+	BEGIN
+		// is ooze
+		LPF CI_APPLY_IMMUNITY_MIND_CRE END
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+		LPF CI_APPLY_IMMUNITY_DISEASE_CRE END
+		LPF CI_APPLY_IMMUNITY_BLIND_CRE END
+		LPF CI_APPLY_IMMUNITY_INT_DRAIN_CRE END
+		LPF CI_APPLY_IMMUNITY_FATIGUE_CRE END
+		LPF CI_APPLY_IMMUNITY_INTOXICATION_CRE END
+		LPF CI_APPLY_IMMUNITY_POLYMORPH_CRE END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~IC_MYCONID~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_MYCONID2~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~IC_SHROOM~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~icmyc01~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~icmyc02~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohbconco~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~ohnjokmy~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~globsham~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~hgmnd2~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~hgmound~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~smound01~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~smoundsu~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~icfung02~)
+		OR (~%SOURCE_RES%~ STRING_EQUAL_CASE ~icfungus~))
+	BEGIN
+		// is plant
+		LPF CI_APPLY_IMMUNITY_MIND_CRE END
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+		LPF CI_APPLY_IMMUNITY_DISEASE_CRE END
+		LPF CI_APPLY_IMMUNITY_ENTANGLE_CRE END
+		LPF CI_APPLY_IMMUNITY_POLYMORPH_CRE END
+		LPF CI_APPLY_IMMUNITY_BACKSTAB_CRE END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~MIST_CREATURE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~BLOB_MIST_CREATURE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~ELEMENTAL_AIR~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~ELEMENTAL_AIR_SMALL~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SHADOW~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHOST~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHOST_SHADOW~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~GHOST_SHADE~)
+		OR (~%race%~ STRING_EQUAL_CASE ~SHADOW~)
+		OR (~%race%~ STRING_EQUAL_CASE ~SPECTRE~)
+		OR (~%race%~ STRING_EQUAL_CASE ~WRAITH~)
+		OR (~%race%~ STRING_EQUAL_CASE ~MIST~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SHADOW~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPECTRE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~WRAITH~)
+		OR (~%class%~ STRING_EQUAL_CASE ~MIST~)
+		OR (~%gender%~ STRING_EQUAL_CASE ~ILLUSIONARY~)
+		OR (~%class%~ STRING_EQUAL_CASE ~ELEMENTAL_AIR~)// air alemental
+		OR (~%class%~ STRING_EQUAL_CASE ~SPIDER_WRAITH~))
+	BEGIN
+		// is incorporeal
+		LPF CI_APPLY_IMMUNITY_ENTANGLE_CRE END
+		LPF CI_APPLY_IMMUNITY_PARALYZE_CRE END
+		LPF CI_APPLY_IMMUNITY_ABILITY_DRAIN_CRE END
+		LPF CI_APPLY_IMMUNITY_FATIGUE_CRE END
+		LPF CI_APPLY_IMMUNITY_INTOXICATION_CRE END
+		LPF CI_APPLY_IMMUNITY_PETRIFICATION_CRE END
+		LPF CI_APPLY_IMMUNITY_GREASE_CRE END
+	END
+	
+	PATCH_IF ((~%race%~ STRING_EQUAL_CASE ~ELEMENTAL~)
+		OR (~%class%~ STRING_EQUAL_CASE ~ELEMENTAL_AIR~)
+		OR (~%class%~ STRING_EQUAL_CASE ~ELEMENTAL_FIRE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~ELEMENTAL_EARTH~))
+	BEGIN
+		// is elemental
+		LPF CI_APPLY_IMMUNITY_SLEEP_CRE END
+		LPF CI_APPLY_IMMUNITY_STUN_CRE END
+		LPF CI_APPLY_IMMUNITY_PARALYZE_CRE END
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+		LPF CI_APPLY_IMMUNITY_BACKSTAB_CRE END
+	END
+	
+	PATCH_IF ((~%race%~ STRING_EQUAL_CASE ~DEMONIC~)
+		OR (~%class%~ STRING_EQUAL_CASE ~TANARI~)
+		OR (~%gender%~ STRING_EQUAL_CASE ~SUMMONED_DEMON~))
+	BEGIN
+		// is infernal
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+		LPF CI_APPLY_IMMUNITY_DISEASE_CRE END
+		LPF CI_APPLY_SEE_INVISIBLE_CRE END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~SPIDER_GIANT~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SPIDER_HUGE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SPIDER_PHASE~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SPIDER_SWORD~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SPIDER_WRAITH~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~SPIDER_SMALL~)
+		OR (~%race%~ STRING_EQUAL_CASE ~SPIDER~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPIDER_GIANT~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPIDER_HUGE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPIDER_PHASE~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPIDER_SWORD~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPIDER_WRAITH~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SPIDER_CENTEOL~)
+		OR (~%race%~ STRING_EQUAL_CASE ~ETTERCAP~)
+		OR (~%class%~ STRING_EQUAL_CASE ~ETTERCAP~))
+	BEGIN
+		// is spider-kind
+		LPF CI_APPLY_IMMUNITY_PARALYZE_CRE END
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~KUO-TOA~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~KUO-TOA_LARGE~)
+		OR (~%race%~ STRING_EQUAL_CASE ~KUO-TOA~)
+		OR (~%class%~ STRING_EQUAL_CASE ~KUO-TOA~))
+	BEGIN
+		// is kuotoa
+		LPF CI_APPLY_IMMUNITY_PARALYZE_CRE END
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+	END
+	
+	PATCH_IF ((~%race%~ STRING_EQUAL_CASE ~DUERGAR~)
+		OR (~%class%~ STRING_EQUAL_CASE ~DUERGAR~))
+	BEGIN
+		// is duergar
+		LPF CI_APPLY_IMMUNITY_PARALYZE_CRE END
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+	END
+	
+	PATCH_IF ((~%race%~ STRING_EQUAL_CASE ~MEPHIT~)
+		OR (~%class%~ STRING_EQUAL_CASE ~MEPHIT~)
+		OR (~%race%~ STRING_EQUAL_CASE ~IMP~)
+		OR (~%class%~ STRING_EQUAL_CASE ~IMP~))
+	BEGIN
+		// is mephit/quasit/imp
+		LPF CI_APPLY_IMMUNITY_POISON_CRE END
+		LPF CI_APPLY_IMMUNITY_GREASE_CRE END
+	END
+	
+	PATCH_IF ((~%race%~ STRING_EQUAL_CASE ~OTYUGH~)
+		OR (~%class%~ STRING_EQUAL_CASE ~OTYUGH~))
+	BEGIN
+		// is otyugh
+		LPF CI_APPLY_IMMUNITY_DISEASE_CRE END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~DRAGON_RED~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~DRAGON_BLACK~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~DRAGON_SILVER~)
+		OR (~%race%~ STRING_EQUAL_CASE ~DRAGON~)
+		OR (~%race%~ STRING_EQUAL_CASE ~WYVERN~)
+		OR (~%class%~ STRING_EQUAL_CASE ~WYVERN~)
+		OR (~%class%~ STRING_EQUAL_CASE ~RED_DRAGON~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SHADOW_DRAGON~)
+		OR (~%class%~ STRING_EQUAL_CASE ~SILVER_DRAGON~))
+	BEGIN
+		// is dragon
+		LPF CI_APPLY_IMMUNITY_SLEEP_CRE END
+		LPF CI_APPLY_IMMUNITY_PARALYZE_CRE END
+		PATCH_IF ((~%race%~ STRING_EQUAL_CASE ~WYVERN~) OR (~%class%~ STRING_EQUAL_CASE ~WYVERN~)) BEGIN
+			// is wyvern
+			LPF CI_APPLY_IMMUNITY_POISON_CRE END
+			LPF CI_APPLY_IMMUNITY_GREASE_CRE END
+		END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~CARRION_CRAWLER~)
+		OR (~%race%~ STRING_EQUAL_CASE ~CARRIONCRAWLER~)
+		OR (~%class%~ STRING_EQUAL_CASE ~CARRIONCRAWLER~)) BEGIN
+		// is carrion crawler
+		LPF CI_APPLY_IMMUNITY_PARALYZE_CRE END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~DOPPLEGANGER~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~DOPPLEGANGER_GREATER~)
+		OR (~%race%~ STRING_EQUAL_CASE ~DOPPLEGANGER~)
+		OR (~%class%~ STRING_EQUAL_CASE ~DOPPLEGANGER~)
+		OR (~%class%~ STRING_EQUAL_CASE ~DOPPLEGANGER_GREATER~)) BEGIN
+		// is doppelganger
+		LPF CI_APPLY_IMMUNITY_CHARM_CRE END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~SOLAR~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~ANTISOLAR~)
+		OR (~%race%~ STRING_EQUAL_CASE ~SOLAR~)
+		OR (~%race%~ STRING_EQUAL_CASE ~ANTISOLAR~)
+		OR (~%race%~ STRING_EQUAL_CASE ~PLANATAR~)
+		OR (~%race%~ STRING_EQUAL_CASE ~DARKPLANATAR~))
+	BEGIN
+		// is celestial
+		LPF CI_APPLY_IMMUNITY_PETRIFICATION_CRE END
+		LPF CI_APPLY_IMMUNITY_BACKSTAB_CRE END
+		LPF CI_APPLY_SEE_INVISIBLE_CRE END
+		LPF CI_APPLY_IMMUNITY_GREASE_CRE END
+	END
+	
+	PATCH_IF ((~%anim%~ STRING_EQUAL_CASE ~BEHOLDER~)
+		OR (~%anim%~ STRING_EQUAL_CASE ~BEHOLDER_SMALL~)
+		OR (~%race%~ STRING_EQUAL_CASE ~BEHOLDER~)
+		OR (~%class%~ STRING_EQUAL_CASE ~BEHOLDER~)) BEGIN
+		// is beholder
+		LPF CI_APPLY_IMMUNITY_BACKSTAB_CRE END
+		LPF CI_APPLY_IMMUNITY_GREASE_CRE END
+	END
+END
+
+
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_CRE
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x2c4 fxOff
+	READ_LONG 0x2c8 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x108
+		READ_LONG (off + 0x08) op
+		PATCH_IF (op = opcode) BEGIN
+			LPF REMOVE_EFFECT_CRE INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_CRE INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_CRE
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_PARAM1_CRE
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x2c4 fxOff
+	READ_LONG 0x2c8 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x108
+		READ_LONG (off + 0x08) op
+		READ_SLONG (off + 0x14) pa1
+		PATCH_IF (op = opcode AND pa1 = param1) BEGIN
+			LPF REMOVE_EFFECT_CRE INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_CRE INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_CRE
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_PARAM2_CRE
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x2c4 fxOff
+	READ_LONG 0x2c8 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x108
+		READ_LONG (off + 0x08) op
+		READ_SLONG (off + 0x18) pa2
+		PATCH_IF (op = opcode AND pa2 = param2) BEGIN
+			LPF REMOVE_EFFECT_CRE INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_CRE INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_CRE
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_PARAM1_PARAM2_CRE
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x2c4 fxOff
+	READ_LONG 0x2c8 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x108
+		READ_LONG (off + 0x08) op
+		READ_SLONG (off + 0x14) pa1
+		READ_SLONG (off + 0x18) pa2
+		PATCH_IF (op = opcode AND pa1 = param1 AND pa2 = param2) BEGIN
+			LPF REMOVE_EFFECT_CRE INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_CRE INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_CRE
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_RES_CRE
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x2c4 fxOff
+	READ_LONG 0x2c8 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x108
+		READ_LONG (off + 0x08) op
+		READ_ASCII (off + 0x28) resB (8) NULL
+		PATCH_IF (op = opcode AND (~%resB%~ STRING_EQUAL_CASE ~%res%~)) BEGIN
+			LPF REMOVE_EFFECT_CRE INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_CRE INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_CRE
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_EFFECT_CRE
+	INT_VAR opcode = 0
+BEGIN
+	op = opcode
+	LPF CI_APPLY_OPCODE_PARAM2_CRE INT_VAR opcode = 101 param2 = op END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_SPELL_CRE
+	STR_VAR res = ~~
+BEGIN
+	LPF CI_APPLY_OPCODE_RES_CRE INT_VAR opcode = 206 param1 = 0xffffffff STR_VAR res = EVAL ~%res%~ END
+END
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_STRING_CRE
+	STR_VAR string = ~~
+BEGIN
+	READ_LONG 0x2c4 fxOff
+	READ_LONG 0x2c8 fxNum
+	off = fxOff + fxNum * 0x108
+	LPF INSERT_EFFECT_CRE INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_CRE INT_VAR off = off opcode = 267 END
+	SAY (off + 0x14) ~%string%~
+	READ_LONG (off + 0x14) strRef
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x108
+		READ_LONG (off + 0x08) opcode
+		READ_LONG (off + 0x14) str
+		PATCH_IF (opcode = 267 AND str = strRef) BEGIN
+			LPF REMOVE_EFFECT_CRE INT_VAR idx = f - 1 END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ICON_CRE
+	INT_VAR icon = 0
+BEGIN
+	LPF CI_APPLY_OPCODE_PARAM2_CRE INT_VAR opcode = 169 param2 = icon END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ANIM_CRE
+	INT_VAR anim = 0
+BEGIN
+	LPF CI_APPLY_OPCODE_RES_CRE INT_VAR opcode = 296 STR_VAR res = EVAL ~%anim%~ END
+END
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_FEAR_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 23 END	// reset morale
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 24 END	// panic
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 106 END	// morale break
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Panic~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Morale Failure: Panic~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~cdhorror~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 36 END		// panic
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_SLEEP_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 39 END	// sleep
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 217 END	// pw sleep
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Sleep~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Unconscious~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~spnwchrm~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 14 END		// sleep
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_CHARM_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 5 END		// charm
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Charmed~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Dire charmed~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Dominated~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~spnwchrm~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 0 END			// charm
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 1 END			// dire charm
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 43 END		// domination
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_STUN_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 45 END	// stun
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 210 END	// pw stun
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Stunned~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Stun~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~SPMINDAT~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 55 END		// stun
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_PARALYZE_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 109 END	// paralyze
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 157 END	// web effect
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 175 END	// hold creature
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Paralyzed~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Held~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Webbed~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 13 END		// held
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 129 END		// webbed
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_MIND_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_FEAR_CRE END
+	LPF CI_APPLY_IMMUNITY_SLEEP_CRE END
+	LPF CI_APPLY_IMMUNITY_CHARM_CRE END
+	LPF CI_APPLY_IMMUNITY_STUN_CRE END
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 76 END	// feebleminded
+	LPF CI_APPLY_IMMUNITY_STRING_CRE INT_VAR strRef = 23744 END	// "Feebleminded"
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 48 END		// feebleminded
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spin774~ END	// psionic maze
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spwi813~ END	// maze
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spcl937~ END	// shadow maze
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 128 END	// confusion
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Confused~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~SPCONFUS~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~SPFLAYER~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 47 END		// chaos
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_POISON_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 25 END				// poison
+	LPF CI_APPLY_OPCODE_CRE INT_VAR opcode = 173 param1 = 100 END			// resist poison damage
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Poisoned~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Bleeding~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 6 END						// poison
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 137 END					// bleeding
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_DISEASE_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 78 END	// disease
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Diseased~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Stricken by a foul disease~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 7 END			// nauseated
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ENERGY_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 96 END	// change level
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 216 END	// level drain
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~One Level Drained~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Two Levels Drained~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Three Levels Drained~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Four Levels Drained~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Five Levels Drained~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 59 END		// energy drain
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_BLIND_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 74 END	// blindness
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 262 END	// visual range bonus
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Blinded~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~SPPOWWRD~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~SPH1HI01~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_CRE STR_VAR anim = ~SPHlHI02~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 8 END			// blind
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ENTANGLE_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 74 END	// entangle overlay
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~sppr105~ END	// entangle
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spwm111~ END	// entangle
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spin688~ END	// plant growth
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 144 END		// entangled
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_INT_DRAIN_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 9 END		// intelligence bonus
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Intelligence drained by mind flayer~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Devour brain~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 86 END		// intelligence drain
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ABILITY_DRAIN_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 6 END		// charisma bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 10 END	// constitution bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 15 END	// dexterity bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 44 END	// strength bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 49 END	// wisdom bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 97 END	// exceptional strength bonus
+	LPF CI_APPLY_IMMUNITY_INT_DRAIN_CRE END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Enfeebled~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Weakened~ END
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 91 END		// ability score drained
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_FATIGUE_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 93 END	// fatigue bonus
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 39 END		// fatigue
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_INTOXICATION_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 94 END	// intoxication bonus
+	LPF CI_APPLY_IMMUNITY_ICON_CRE STR_VAR icon = 5 END			// intoxicated
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_PETRIFICATION_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 134 END	// petrification
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Turned to Stone~ END
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Petrified~ END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_POLYMORPH_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 135 END	// polymorph
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spwi415~ END	// polymorph other
+	LPF CI_APPLY_IMMUNITY_STRING_CRE STR_VAR string = ~Polymorphed~ END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_BACKSTAB_CRE BEGIN
+	LPF CI_APPLY_OPCODE_CRE INT_VAR opcode = 292 param2 = 1 END	// immunity to backstab
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_TURN_CRE BEGIN
+	LPF CI_APPLY_OPCODE_CRE INT_VAR opcode = 297 param2 = 1 END	// immunity to turn undead
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_GREASE_CRE BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 158 END	// grease overlay
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spwi101~ END	// grease
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spin914~ END	// mimic glue
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_SEE_INVISIBLE_CRE BEGIN
+	LPF CI_APPLY_OPCODE_CRE INT_VAR opcode = 193 param2 = 1 END	// see invisible
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_AURA_CLEANSING_CRE BEGIN
+	LPF CI_APPLY_OPCODE_CRE INT_VAR opcode = 188 param2 = 1 END	// see invisible
+END
+
+
+
+
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_ITM
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x30
+		READ_SHORT off op
+		PATCH_IF (op = opcode) BEGIN
+			LPF REMOVE_EFFECT_ITM INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_ITM INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_ITM
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_PARAM1_ITM
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x30
+		READ_SHORT off op
+		READ_SLONG (off + 0x04) pa1
+		PATCH_IF (op = opcode AND pa1 = param1) BEGIN
+			LPF REMOVE_EFFECT_ITM INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_ITM INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_ITM
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_PARAM2_ITM
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x30
+		READ_SHORT off op
+		READ_SLONG (off + 0x08) pa2
+		PATCH_IF (op = opcode AND pa2 = param2) BEGIN
+			LPF REMOVE_EFFECT_ITM INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_ITM INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_ITM
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_PARAM1_PARAM2_ITM
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x30
+		READ_SHORT off op
+		READ_SLONG (off + 0x04) pa1
+		READ_SLONG (off + 0x08) pa2
+		PATCH_IF (op = opcode AND pa1 = param1 AND pa2 = param2) BEGIN
+			LPF REMOVE_EFFECT_ITM INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_ITM INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_ITM
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_OPCODE_RES_ITM
+	INT_VAR opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x30
+		READ_SHORT off op
+		READ_ASCII (off + 0x14) resB (8) NULL
+		PATCH_IF (op = opcode AND (~%resB%~ STRING_EQUAL_CASE ~%res%~)) BEGIN
+			LPF REMOVE_EFFECT_ITM INT_VAR idx = f - 1 END
+			fxNum = fxNum - 1
+		END
+	END
+	LPF INSERT_EFFECT_ITM INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_ITM
+		INT_VAR	off = off opcode = opcode param1 = param1 param2 = param2
+		STR_VAR	res = EVAL ~%res%~
+	END
+END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_EFFECT_ITM
+	INT_VAR opcode = 0
+BEGIN
+	op = opcode
+	LPF CI_APPLY_OPCODE_PARAM2_ITM INT_VAR opcode = 101 param2 = op END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_SPELL_ITM
+	STR_VAR res = ~~
+BEGIN
+	LPF CI_APPLY_OPCODE_RES_ITM INT_VAR opcode = 206 param1 = 0xffffffff STR_VAR res = EVAL ~%res%~ END
+END
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_STRING_ITM
+	STR_VAR string = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	off = fxOff + fxNum * 0x30
+	LPF INSERT_EFFECT_ITM INT_VAR idx = fxNum RET off = off END
+	LPF WRITE_DEFAULT_EFFECT_ITM INT_VAR off = off opcode = 267 END
+	SAY (off + 0x04) ~%string%~
+	READ_LONG (off + 0x04) strRef
+	FOR (f = fxNum; f > 0; --f) BEGIN
+		off = fxOff + (f - 1) * 0x30
+		READ_LONG off opcode
+		READ_LONG (off + 0x04) str
+		PATCH_IF (opcode = 267 AND str = strRef) BEGIN
+			LPF REMOVE_EFFECT_ITM INT_VAR idx = f - 1 END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ICON_ITM
+	INT_VAR icon = 0
+BEGIN
+	LPF CI_APPLY_OPCODE_PARAM2_ITM INT_VAR opcode = 169 param2 = icon END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ANIM_ITM
+	INT_VAR anim = 0
+BEGIN
+	LPF CI_APPLY_OPCODE_RES_ITM INT_VAR opcode = 296 STR_VAR res = EVAL ~%anim%~ END
+END
+
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_FEAR_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 23 END	// reset morale
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 24 END	// panic
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 106 END	// morale break
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Panic~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Morale Failure: Panic~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~cdhorror~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 36 END		// panic
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_SLEEP_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 39 END	// sleep
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 217 END	// pw sleep
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Sleep~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Unconscious~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~spnwchrm~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 14 END		// sleep
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_CHARM_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 5 END		// charm
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Charmed~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Dire charmed~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Dominated~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~spnwchrm~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 0 END			// charm
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 1 END			// dire charm
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 43 END		// domination
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_STUN_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 45 END	// stun
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 210 END	// pw stun
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Stunned~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Stun~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~SPMINDAT~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 55 END		// stun
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_PARALYZE_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 109 END	// paralyze
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 157 END	// web effect
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 175 END	// hold creature
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Paralyzed~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Held~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Webbed~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 13 END		// held
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 129 END		// webbed
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_MIND_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_FEAR_ITM END
+	LPF CI_APPLY_IMMUNITY_SLEEP_ITM END
+	LPF CI_APPLY_IMMUNITY_CHARM_ITM END
+	LPF CI_APPLY_IMMUNITY_STUN_ITM END
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 76 END	// feebleminded
+	LPF CI_APPLY_IMMUNITY_STRING_ITM INT_VAR strRef = 23744 END	// "Feebleminded"
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 48 END		// feebleminded
+	LPF CI_APPLY_IMMUNITY_SPELL_ITM STR_VAR res = ~spin774~ END	// psionic maze
+	LPF CI_APPLY_IMMUNITY_SPELL_ITM STR_VAR res = ~spwi813~ END	// maze
+	LPF CI_APPLY_IMMUNITY_SPELL_ITM STR_VAR res = ~spcl937~ END	// shadow maze
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 128 END	// confusion
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Confused~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~SPCONFUS~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~SPFLAYER~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 3 END			// confusion
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 47 END		// chaos
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_POISON_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 25 END				// poison
+	LPF CI_APPLY_OPCODE_ITM INT_VAR opcode = 173 param1 = 100 END			// resist poison damage
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Poisoned~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Bleeding~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 6 END						// poison
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 137 END					// bleeding
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_DISEASE_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 78 END	// disease
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Diseased~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Stricken by a foul disease~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 7 END			// nauseated
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ENERGY_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 96 END	// change level
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 216 END	// level drain
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~One Level Drained~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Two Levels Drained~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Three Levels Drained~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Four Levels Drained~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Five Levels Drained~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 59 END		// energy drain
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_BLIND_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 74 END	// blindness
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 262 END	// visual range bonus
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Blinded~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~SPPOWWRD~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~SPH1HI01~ END
+	LPF CI_APPLY_IMMUNITY_ANIM_ITM STR_VAR anim = ~SPHlHI02~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 8 END			// blind
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ENTANGLE_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 74 END	// entangle overlay
+	LPF CI_APPLY_IMMUNITY_SPELL_ITM STR_VAR res = ~sppr105~ END	// entangle
+	LPF CI_APPLY_IMMUNITY_SPELL_ITM STR_VAR res = ~spwm111~ END	// entangle
+	LPF CI_APPLY_IMMUNITY_SPELL_ITM STR_VAR res = ~spin688~ END	// plant growth
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 144 END		// entangled
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_INT_DRAIN_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 19 END		// intelligence bonus
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Intelligence drained by mind flayer~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Devour brain~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 86 END		// intelligence drain
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_ABILITY_DRAIN_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 6 END		// charisma bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 10 END	// constitution bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 15 END	// dexterity bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 44 END	// strength bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 49 END	// wisdom bonus
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 97 END	// exceptional strength bonus
+	LPF CI_APPLY_IMMUNITY_INT_DRAIN_ITM END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Enfeebled~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Weakened~ END
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 91 END		// ability score drained
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_FATIGUE_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 93 END	// fatigue bonus
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 39 END		// fatigue
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_INTOXICATION_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 94 END	// intoxication bonus
+	LPF CI_APPLY_IMMUNITY_ICON_ITM STR_VAR icon = 5 END			// intoxicated
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_PETRIFICATION_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 134 END	// petrification
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Turned to Stone~ END
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Petrified~ END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_POLYMORPH_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_ITM INT_VAR opcode = 135 END	// polymorph
+	LPF CI_APPLY_IMMUNITY_SPELL_ITM STR_VAR res = ~spwi415~ END	// polymorph other
+	LPF CI_APPLY_IMMUNITY_STRING_ITM STR_VAR string = ~Polymorphed~ END
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_BACKSTAB_ITM BEGIN
+	LPF CI_APPLY_OPCODE_ITM INT_VAR opcode = 292 param2 = 1 END	// immunity to backstab
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_TURN_ITM BEGIN
+	LPF CI_APPLY_OPCODE_ITM INT_VAR opcode = 297 param2 = 1 END	// immunity to turn undead
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_IMMUNITY_GREASE_ITM BEGIN
+	LPF CI_APPLY_IMMUNITY_EFFECT_CRE INT_VAR opcode = 158 END	// grease overlay
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spwi101~ END	// grease
+	LPF CI_APPLY_IMMUNITY_SPELL_CRE STR_VAR res = ~spin914~ END	// mimic glue
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_SEE_INVISIBLE_ITM BEGIN
+	LPF CI_APPLY_OPCODE_ITM INT_VAR opcode = 193 param2 = 1 END	// see invisible
+END
+
+DEFINE_PATCH_FUNCTION CI_APPLY_AURA_CLEANSING_ITM BEGIN
+	LPF CI_APPLY_OPCODE_ITM INT_VAR opcode = 188 param2 = 1 END	// see invisible
+END
+
+

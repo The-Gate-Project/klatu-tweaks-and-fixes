@@ -1,0 +1,559 @@
+
+// Vars used: k#AImode, k#AIbuff, k#AIhide
+// value / response table for k#AImode
+// 0	ATTACK
+// 1	HIDE
+// 2	TRAPS
+// 3	TURN
+// 4	SONG
+// 5	WAS_ATTACK
+// 6	WAS_HIDE
+// 7	WAS_TRAPS
+// 8	WAS_TURN
+// 9	WAS_SONG
+
+// value / response table for k#AIbuff
+// 0	Nothing
+// 100+	Buffing self
+// 200+	Buffing Player1-Player6
+// 300+	Buffing Party with AoE
+
+// Attack routine
+	IF
+		ActionListEmpty()					// not acting
+		Global(%var_mode%,"LOCALS",0)		// attack mode
+		Global(%var_buff%,"LOCALS",0)		// not buffing
+		See(NearestEnemyOf(Myself))			// enemy
+	THEN
+		RESPONSE #100
+			AttackReevaluate(NearestEnemyOf(Myself),0)
+	END
+
+// reset mode for class change
+	IF
+		Global(%var_mode%,"LOCALS",1)		// stealth
+		!Class(Myself,THIEF_ALL)
+		!Class(Myself,RANGER_ALL)
+		!Class(Myself,MONK)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",0)
+			DisplayStringHead(Myself,@174)	// ~AI: Attack~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",2)		// traps
+		!Class(Myself,THIEF_ALL)
+		!Class(Myself,MONK)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",0)
+			DisplayStringHead(Myself,@174)
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",3)		// turn
+		!Class(Myself,CLERIC_ALL)
+		!Class(Myself,PALADIN_ALL)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",0)
+			DisplayStringHead(Myself,@174)
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",4)		// song
+		!Class(Myself,BARD_ALL)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",0)
+			DisplayStringHead(Myself,@174)
+	END
+
+// Stealth routine
+	IF
+		ActionListEmpty()							// not acting
+		Global(%var_buff%,"LOCALS",0)				// not buffing
+		Global(%var_mode%,"LOCALS",1)				// stealth mode
+		!GlobalTimerNotExpired(%var_hide%,"LOCALS")	// stealth timer expired
+		!StateCheck(Myself,0x00400010)				// not already hidden
+		OR(3)										// still allowed to hide
+			Class(Myself,THIEF_ALL)
+			Class(Myself,RANGER_ALL)
+			Class(Myself,MONK)
+		OR(2)										// lower priority than other modes
+			ModalState(NONE)
+			ModalState(STEALTH)
+	THEN
+		RESPONSE #100
+			SetGlobalTimer(%var_hide%,"LOCALS",6)
+			Hide()
+	END
+	
+// Find traps
+	IF
+		ActionListEmpty()
+		Global(%var_buff%,"LOCALS",0)				// not buffing
+		Global(%var_mode%,"LOCALS",2)
+		OR(2)
+			Class(Myself,THIEF_ALL)
+			Class(Myself,MONK)
+		!ModalState(DETECTTRAPS)
+	THEN
+		RESPONSE #100
+			FindTraps()
+	END
+	
+
+// Turn undead
+	IF
+		ActionListEmpty()
+		Global(%var_buff%,"LOCALS",0)				// not buffing
+		Global(%var_mode%,"LOCALS",3)
+		OR(2)
+			Class(Myself,CLERIC_ALL)
+			Class(Myself,PALADIN_ALL)
+		!ModalState(TURNUNDEAD)
+	THEN
+		RESPONSE #100
+			Turn()
+	END
+	
+// Song
+	IF
+		ActionListEmpty()
+		Global(%var_buff%,"LOCALS",0)				// not buffing
+		Global(%var_mode%,"LOCALS",4)
+		Class(Myself,BARD_ALL)
+		!ModalState(BATTLESONG)
+	THEN
+		RESPONSE #100
+			BattleSong()
+	END
+	
+
+// turn off AI
+	IF
+		Global(%var_mode%,"LOCALS",0)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",5)
+			DisplayStringHead(Myself,@175)	// ~AI: Off~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",1)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",6)
+			DisplayStringHead(Myself,@175)	// ~AI: Off~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",2)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",7)
+			DisplayStringHead(Myself,@175)	// ~AI: Off~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",3)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",8)
+			DisplayStringHead(Myself,@175)	// ~AI: Off~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",4)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",9)
+			DisplayStringHead(Myself,@175)	// ~AI: Off~
+	END
+
+// turn on AI
+	IF
+		Global(%var_mode%,"LOCALS",5)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",0)
+			DisplayStringHead(Myself,@174)	// ~AI: Attack~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",6)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",1)
+			DisplayStringHead(Myself,@176)	// ~AI: Stealth~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",7)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",2)
+			DisplayStringHead(Myself,@177)	// ~AI: Find Traps~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",8)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",3)
+			DisplayStringHead(Myself,@178)	// ~AI: Turn Undead~
+	END
+
+	IF
+		Global(%var_mode%,"LOCALS",9)
+		HotKey(%hotkey_toggle%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_mode%,"LOCALS",4)
+			DisplayStringHead(Myself,@179)	//~AI: Bard Song~
+	END
+
+
+
+// cycle modes
+	// from attack
+		IF
+			Global(%var_mode%,"LOCALS",0)
+			OR(3)
+				Class(Myself,THIEF_ALL)
+				Class(Myself,RANGER_ALL)
+				Class(Myself,MONK)
+			HotKey(%hotkey_cycle%)
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_mode%,"LOCALS",1)
+				DisplayStringHead(Myself,@176)	// ~AI: Stealth~
+		END
+
+		IF
+			Global(%var_mode%,"LOCALS",0)
+			OR(2)
+				Class(Myself,CLERIC_ALL)
+				Class(Myself,PALADIN_ALL)
+			HotKey(%hotkey_cycle%)
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_mode%,"LOCALS",3)
+				DisplayStringHead(Myself,@178)	//~AI: Turn Undead~
+		END
+
+		IF
+			Global(%var_mode%,"LOCALS",0)
+			Class(Myself,BARD_ALL)
+			HotKey(%hotkey_cycle%)
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_mode%,"LOCALS",4)
+				DisplayStringHead(Myself,@179)	// ~AI: Bard Song~
+		END
+
+	// from stealth
+		IF
+			Global(%var_mode%,"LOCALS",1)
+			OR(2)
+				Class(Myself,THIEF_ALL)
+				Class(Myself,MONK)
+			HotKey(%hotkey_cycle%)
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_mode%,"LOCALS",2)
+				DisplayStringHead(Myself,@177)	// ~AI: Find Traps~
+		END
+
+		IF
+			Global(%var_mode%,"LOCALS",1)
+			Class(Myself,CLERIC_ALL)
+			HotKey(%hotkey_cycle%)
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_mode%,"LOCALS",3)
+				DisplayStringHead(Myself,@178)	// ~AI: Turn Undead~
+		END
+
+	// from traps
+		IF
+			Global(%var_mode%,"LOCALS",2)
+			Class(Myself,CLERIC_ALL)
+			HotKey(%hotkey_cycle%)
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_mode%,"LOCALS",3)
+				DisplayStringHead(Myself,@178)	// ~AI: Turn Undead~
+		END
+		
+	// all other cases
+		IF
+			GlobalLT(%var_mode%,"LOCALS",5)
+			HotKey(%hotkey_cycle%)
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_mode%,"LOCALS",0)
+				DisplayStringHead(Myself,@174)	// ~AI: Attack~
+		END
+
+	
+	
+
+/////////////////////////////////////////////////
+// INIT BUFF                                   //
+/////////////////////////////////////////////////
+
+
+// disabled, because some spells stupidly set the combat counter (*shakes fist at Spell Revisions*)
+// Early buff abort due to combat
+//	IF
+//		!Global(%var_buff%,"LOCALS",0)		// already buffing
+//		OR(2)								// in combat
+//			!CombatCounter(0)
+//			Detect(NearestEnemyOf(Myself))
+//	THEN
+//		RESPONSE #100
+//			SetGlobal(%var_buff%,"LOCALS",0)
+//			DisplayStringHead(Myself,@180)	// ~Cannot buff in combat~
+//	END
+
+// disabled, because kindof pointless
+// abort due to spell failure
+//	IF
+//		!Global(%var_buff%,"LOCALS",0)		// already buffing
+//		OR(4)								// casting failure
+//			CheckStatGT(Myself,0,SPELLFAILUREMAGE)
+//			CheckStatGT(Myself,0,SPELLFAILUREPRIEST)
+//			StateCheck(Myself,STATE_POISONED)
+//			StateCheck(Myself,STATE_SILENCED)
+//	THEN
+//		RESPONSE #100
+//			SetGlobal(%var_buff%,"LOCALS",0)
+//			DisplayStringHead(Myself,@181)	// ~Cannot buff due to casting failure~
+//	END
+
+// if in combat, prevent buffing
+	IF
+		ActionListEmpty()
+		Global(%var_buff%,"LOCALS",0)
+		OR(2)
+			!CombatCounter(0)
+			Detect(NearestEnemyOf(Myself))
+		OR(3)
+			HotKey(%hotkey_self%)
+			HotKey(%hotkey_other%)
+			HotKey(%hotkey_party%)
+	THEN
+		RESPONSE #100
+			DisplayStringHead(Myself,@180)	// ~Cannot buff in combat~
+	END
+	
+// if casting failure, prevent buffing
+	IF
+		ActionListEmpty()
+		Global(%var_buff%,"LOCALS",0)
+		OR(4)
+			CheckStatGT(Myself,0,SPELLFAILUREMAGE)
+			CheckStatGT(Myself,0,SPELLFAILUREPRIEST)
+			StateCheck(Myself,STATE_POISONED)
+			StateCheck(Myself,STATE_SILENCED)
+		OR(3)
+			HotKey(%hotkey_self%)
+			HotKey(%hotkey_other%)
+			HotKey(%hotkey_party%)
+	THEN
+		RESPONSE #100
+			DisplayStringHead(Myself,@181)	// ~Cannot buff due to casting failure~
+	END
+
+// ingore input if already buffing and continue
+	IF
+		ActionListEmpty()
+		!Global(%var_buff%,"LOCALS",0)
+		OR(3)
+			HotKey(%hotkey_self%)
+			HotKey(%hotkey_other%)
+			HotKey(%hotkey_party%)
+	THEN
+		RESPONSE #100
+			DisplayStringHead(Myself,@182)	// ~Already buffing~
+			Continue()
+	END
+
+// buff self
+	IF
+		ActionListEmpty()
+		Global(%var_buff%,"LOCALS",0)
+		HotKey(%hotkey_self%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_buff%,"LOCALS",100)
+			DisplayStringHead(Myself,@183)	// ~Buffing myself~
+			Continue()
+	END
+
+// buf others
+	IF
+		ActionListEmpty()
+		Global(%var_buff%,"LOCALS",0)
+		HotKey(%hotkey_other%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_buff%,"LOCALS",200)
+			DisplayStringHead(Myself,@184)	// ~Buffing others~
+			Continue()
+	END
+	
+// buff party
+	IF
+		ActionListEmpty()
+		Global(%var_buff%,"LOCALS",0)
+		HotKey(%hotkey_party%)
+	THEN
+		RESPONSE #100
+			SetGlobal(%var_buff%,"LOCALS",300)
+			DisplayStringHead(Myself,@185)	// ~Buffing with area spells~
+			Continue()
+	END
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// OTHER BUFF                                  ////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	//////////////////////////////////////////////////////////
+	// EARLY ABORT                                          ///////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////
+		
+		IF
+			Global(%var_buff%,"LOCALS",200)		// do Player1
+			OR(3)
+				InPartySlot(Myself,0)			// am Player1
+				!See(Player1)					// cant see Player1
+				!Range(Player1,%var_range%)		// Player1 too far away
+			OR(3)
+				InPartySlot(Myself,1)			// am Player2
+				!See(Player2)					// cant see Player2
+				!Range(Player2,%var_range%)		// Player2 too far away
+			OR(3)
+				InPartySlot(Myself,2)			// am Player3
+				!See(Player3)					// cant see Player3
+				!Range(Player3,%var_range%)		// Player3 too far away
+			OR(3)
+				InPartySlot(Myself,3)			// am Player4
+				!See(Player4)					// cant see Player4
+				!Range(Player4,%var_range%)		// Player4 too far away
+			OR(3)
+				InPartySlot(Myself,4)			// am Player5
+				!See(Player5)					// cant see Player5
+				!Range(Player5,%var_range%)		// Player5 too far away
+			OR(3)
+				InPartySlot(Myself,5)			// am Player6
+				!See(Player6)					// cant see Player6
+				!Range(Player6,%var_range%)		// Player6 too far away
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_buff%,"LOCALS",0)
+				DisplayStringHead(Myself,@186)	// ~Buffing done~
+		END
+		
+		// one in 1-6 is valid
+		
+		// if 1 isnt valid, but 2 is, go to 2
+		IF
+			Global(%var_buff%,"LOCALS",200)	// do Player1
+			OR(3)
+				InPartySlot(Myself,0)		// am Player1
+				!See(Player1)				// cant see Player1
+				!Range(Player1,%var_range%)			// Player1 too far away
+			!InPartySlot(Myself,1)		// am not Player2
+			See(Player2)				// can see Player2
+			Range(Player2,%var_range%)			// Player2 not too far away
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_buff%,"LOCALS",210)	// goto Player2
+		END
+		
+		// didnt go to 2
+		// if 1 isnt valid, but 3 is, go to 3
+		IF
+			Global(%var_buff%,"LOCALS",200)	// do Player1
+			OR(3)
+				InPartySlot(Myself,0)		// am Player1
+				!See(Player1)				// cant see Player1
+				!Range(Player1,%var_range%)			// Player1 too far away
+			!InPartySlot(Myself,2)		// am not Player3
+			See(Player3)				// can see Player3
+			Range(Player3,%var_range%)			// Player3 not too far away
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_buff%,"LOCALS",220)	// goto Player3
+		END
+		
+		// didnt go to 3
+		// if 1 isnt valid, but 4 is, go to 4
+		IF
+			Global(%var_buff%,"LOCALS",200)	// do Player1
+			OR(3)
+				InPartySlot(Myself,0)		// am Player1
+				!See(Player1)				// cant see Player1
+				!Range(Player1,%var_range%)			// Player1 too far away
+			!InPartySlot(Myself,3)		// am not Player4
+			See(Player4)				// can see Player4
+			Range(Player4,%var_range%)			// Player4 not too far away
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_buff%,"LOCALS",230)	// goto Player4
+		END
+		
+		// didnt go to 4
+		// if 1 isnt valid, but 5 is, go to 5
+		IF
+			Global(%var_buff%,"LOCALS",200)	// do Player1
+			OR(3)
+				InPartySlot(Myself,0)		// am Player1
+				!See(Player1)				// cant see Player1
+				!Range(Player1,%var_range%)			// Player1 too far away
+			!InPartySlot(Myself,4)		// am not Player5
+			See(Player5)				// can see Player5
+			Range(Player5,%var_range%)			// Player5 not too far away
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_buff%,"LOCALS",240)	// goto Player5
+		END
+		
+		// didnt go to 5
+		// must be 1 or 6
+		// if not 1, then go to 6, otherwise continue with 1
+		IF
+			Global(%var_buff%,"LOCALS",200)	// do Player1
+			OR(3)
+				InPartySlot(Myself,0)		// am Player1
+				!See(Player1)				// cant see Player1
+				!Range(Player1,%var_range%)			// Player1 too far away
+		THEN
+			RESPONSE #100
+				SetGlobal(%var_buff%,"LOCALS",250)	// goto Player6
+		END
+		
+		
+	
+	
+	
+	
+	

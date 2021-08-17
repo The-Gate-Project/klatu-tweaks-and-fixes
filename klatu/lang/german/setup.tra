@@ -1,0 +1,424 @@
+@0 = ~Die Handschuhe von Gevatter Hees~
+@1 = ~Inhaltsaenderungen~
+@2 = ~Inkompatibles Spiel~
+@3 = ~Nötige Datei fehlt~
+@4 = ~Namespace voll~
+@5 = ~Handschuhe~
+@6 = ~Handschuhe von Gevatter Hees~
+@7 = ~Dieses Paar extravaganter Handschuhe wurden aus der Robe von Gevatter Hees erstellt. Wie es sich herausstellte war Hees kein sonderlich gütiger Mann, wenn wan bedenkt dass er seine Schützlinge, Kollegen und sogar seine Ehefrau Telana an die Roten Zauberer aus Tay verkauft hat, durch welche sie Sklaverei und Folter ausgesetzt wurden. Die Robe war ein ungewöhnlicher, doch mächtiger Gegenstand, der dem Träger größere Kontrolle über wilde Magie erlaubte.
+
+<CHARNAME> gab diese Handschuhe beim genialen Cromwell in Auftrag, welcher es fertig brachte, die Roben in ihre gegenwärtige Form zu bringen ohne ihre magischen Eigenschaften zu riskieren.
+
+EIGENSCHAFTEN:
+
+Bonus auf alle Würfe für Unbändige Wogen
+
+Gewicht: 1~
+@8 = ~Geplante Wünsche~
+@9 = ~Willkürlicher Wunsch~
+@10 = ~Wunsch: Eigenschaften anheben~
+@11 = ~Wunsch: Eigenschaften anheben
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 8
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll die Eigenschaften aller Gruppenmitglieder für 4 Runden auf 25 anheben.~
+@12 = ~Wunsch: Auferstehung~
+@13 = ~Wunsch: Auferstehung
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 9
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Auferstehung“ auf alle toten Gruppenmitglieder zaubern.~
+
+@14 = ~Wunsch: Höherer Todesschlag~
+@15 = ~Wunsch: Höherer Todesschlag
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 7
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll allen Gruppenmitglieder die Fähigkeit „Höherer Todesschlag“ verleihen.~
+@16 = ~Wunsch: Zähigkeit~
+@17 = ~Wunsch: Zähigkeit
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 7
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll allen Gruppenmitglieder die Fähigkeit „Zähigkeit“ verleihen.~
+@18 = ~Wunsch: Alchemie~
+@19 = ~Wunsch: Alchemie
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 7
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll einen zufälligen Trank im Gepäck des Zaubernden erzeugen.~
+@20 = ~Wunsch: Zauberstab~
+@21 = ~Wunsch: Zauberstab
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 7
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll einen zufälligen Zauberstab im Gepäck des Zaubernden erzeugen.~
+@22 = ~Wunsch: Rast~
+@23 = ~Wunsch: Rast
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 12
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll augenblickden den Effekt einer vollen Nacht Schlaf für alle Gruppenmitglieder herbeiführen, sodass sie all ihre Fähigkeiten und Zauber erneut einsetzen können.~
+@24 = ~Wunsch: Beschleunigter Zeitstopp~
+@25 = ~Wunsch: Beschleunigter Zeitstopp
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 12
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll einen doppelt so langen „Zeitstopp“ und eine „Verbesserte Beschleunigung“ auf den Zauberer bewirken.~
+@26 = ~Wunsch: Flügelschlag~
+@27 = ~Wunsch: Flügelschlag
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 6
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll alle Leute, einschließlich der Gruppenmitglieder, vom Zauberer wegstoßen.~
+@28 = ~Wunsch: Heilung~
+@29 = ~Wunsch: Heilung
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 9
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Heilung“ aud alle anwesenden wirken, einschließlich aller Gruppenmitglieder und Feinde~
+@30 = ~Wunsch: Magie Fehlwirken~
+@31 = ~Wunsch: Magie Fehlwirken
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 9
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Magie fehlwirken“ auf alle Anwesenden in dem Gebiet bewirken, einschließlich Gruppenmitglieder.~
+@32 = ~Wunsch: Magieresistenz~
+@33 = ~Wunsch: Magieresistenz
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 6
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Magieresistenz“ auf alle Anwesenden in dem Gebiet bewirken, einschließlich Gruppenmitglieder und Feinde.~
+@34 = ~Wish: Mass Horrid Wilting~ ~Wunsch: Abscheuliche Austrocknung~
+@35 = ~Wunsch: „Abscheuliche Austrocknung“
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 12
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Abi-Dalzims abscheuliche Austrocknung“ auf alle Anwesenden in dem Gebiet bewirken, einschließlich Gruppenmitglieder und Feinde.~
+@36 = ~Wunsch: Stille~
+@37 = ~Wunsch: Stille
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 6
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Stille“ auf alle Anwesenden in dem Gebiet bewirken, einschließlich Gruppenmitglieder und Feinde.~
+@38 = ~Wunsch: Verbesserte Hast~
+@39 = ~Wunsch: Verbesserte Hast
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 9
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Verbesserte Hast“ auf alle Gruppenmitglieder bewirken.~
+@40 = ~Wunsch: Bresche~
+@41 = ~Wunsch: Bresche
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 8
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Bresche“ auf alle Feinde zaubern.~
+@42 = ~Wunsch: Genesung~
+@43 = ~Wunsch: Genesung
+
+Grad: 9
+Schule: Beschwörung
+Reichweite: Unbegrenzt
+Dauer: Speziell
+Zeitaufwand: 9
+Bereich: Speziell
+Rettungswurf: Speziell
+
+Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
+
+Dieser bestimmte Wunsch soll „Genesung“ auf alle Gruppenmitglieder bewirken.~
+@44 = ~Kein Preisverfall~
+@45 = ~Gameplay Tweaks und Korrekturen~
+@46 = ~Korrigiere Hasardeur-Zauber und -Gegenstände~
+@47 = ~Wunsch daran hindern, den Zaubernden zu unterbrechen~
+@48 = ~Ausrüstung durch Auflösung fallenlassen ~
+@49 = ~Kein einzigartiger Resourcenname konnte generiert werden.~
+@50 = ~Ausrüstung durch Versteinerung fallenlassen~
+@51 = ~Ausrüstung durch Einkerkerung fallenlassen~
+@52 = ~Einheitliche Verwandlungszauber~
+@53 = ~Erlaube es verwandelten Spielern Gepräche zu starten? (1 oder 2 eingeben)
+1) Verwandelte Spieler können Gepräche mit NSCs starten. (empfohlen)
+2) Verwandelte Spieler können KEINE Gepräche mit NSCs starten.~
+@55 = ~Erlaube es verwandelten Kreaturen göttliche Magie ohne Fehler zu wirken? (1 oder 2 eingeben)
+1) Verwandelte Kreaturen bekommen immer eine 100% Fehlerrate beim Zaubern göttlicher Magie (empfohlen)
+2) Verwandelte Kreaturen dürfen göttlicher Magie ohne Fehler zaubern wenn ihre Weisheit hoch genug ist und sie freiwillig verwandelt wurden.~
+@56 = ~Gib eine Zahl von 1 bis 25 ein (10 ist empfohlen). Diese Zahl dient als Schwelle für die natürliche Weisheit einer Kreatur. Wenn ein Character frewillig in eine Kreatur verwandelt ist, deren natürliche Weisheit bei oder über dieser Schwelle liegt, dann darf er fehlerfrei göttliche Magie anwenden.~
+@57 = ~Erlaube es verwandelten Kreaturen arkane Magie ohne Fehler zu wirken? (1 oder 2 eingeben)
+1) Verwandelte Kreaturen bekommen immer eine 100% Fehlerrate beim Zaubern arkaner Magie (empfohlen)
+2) Verwandelte Kreaturen dürfen arkane Magie ohne Fehler zaubern wenn ihre Weisheit hoch genug ist und sie freiwillig verwandelt wurden.~
+@58 = ~Gib eine Zahl von 1 bis 25 ein (10 ist empfohlen). Diese Zahl dient als Schwelle für die natürliche Intelligenz einer Kreatur. Wenn ein Character frewillig in eine Kreatur verwandelt ist, deren natürliche Intelligenz bei oder über dieser Schwelle liegt, dann darf er fehlerfrei arkane Magie anwenden.~
+@59 = ~Die folgenden Optionen wurden gewählt:~
+@60 = ~ * Verwandelte Spieler können KEINE Gepräche mit NSCs starten.~
+@61 = ~ * Verwandelte Spieler können Gepräche mit NSCs starten. (empfohlen)~
+@62 = ~ * Verwandelte Kreaturen bekommen immer eine 100% Fehlerrate beim Zaubern göttlicher Magie (empfohlen)~
+@63 = ~ * Verwandelte Kreaturen dürfen göttlicher Magie ohne Fehler zaubern wenn ihre Weisheit hoch genug ist und sie freiwillig verwandelt wurden. Schwelle:~
+@64 = ~ * Verwandelte Kreaturen bekommen immer eine 100% Fehlerrate beim Zaubern arkaner Magie (empfohlen)~
+@65 = ~ * Verwandelte Kreaturen dürfen arkane Magie ohne Fehler zaubern wenn ihre Weisheit hoch genug ist und sie freiwillig verwandelt wurden. Schwelle:~
+@66 = ~Mit diesen Optionen fortfahren? (1 oder 2 eingeben)
+1) Mit der Installation fortfahren.
+2) Optionen erneut wählen.~
+@69 = ~Kelseys romantische Musik stummschalten~
+@70 = ~Kosmetische Änderungen~
+@71 = ~Xans romantische Musik stummschalten~
+@72 = ~Chaosschild Icons von allen Gegenständen entfernen~
+@73 = ~Geringe-Robe-Aussehen für Robe der Guten Erzmagier~
+@74 = ~Ändere Aussehen der Robe der Guten Erzmagier~
+@75 = ~Umhang-Robe-Aussehen für Robe der Guten Erzmagier~
+@76 = ~Kapuzen-Robe-Aussehen für Robe der Guten Erzmagier~
+@77 = ~Lederrüstung-Aussehen für Robe der Guten Erzmagier~
+@78 = ~Kettenhemd-Aussehen für Robe der Guten Erzmagier~
+@79 = ~Plattenpanzer-Aussehen für Robe der Guten Erzmagier~
+@80 = ~Geringe-Robe-Aussehen für Robe der Neutralen Erzmagier~
+@81 = ~Ändere Aussehen der Robe der Neutralen Erzmagier~
+@82 = ~Umhang-Robe-Aussehen für Robe der Neutralen Erzmagier~
+@83 = ~Kapuzen-Robe-Aussehen für Robe der Neutralen Erzmagier~
+@84 = ~Lederrüstung-Aussehen für Robe der Neutralen Erzmagier~
+@85 = ~Kettenhemd-Aussehen für Robe der Neutralen Erzmagier~
+@86 = ~Plattenpanzer-Aussehen für Robe der Neutralen Erzmagier~
+@87 = ~Geringe-Robe-Aussehen für Robe der Bösen Erzmagier~
+@88 = ~Ändere Aussehen der Robe der Bösen Erzmagier~
+@89 = ~Umhang-Robe-Aussehen für Robe der Bösen Erzmagier~
+@90 = ~Kapuzen-Robe-Aussehen für Robe der Bösen Erzmagier~
+@91 = ~Lederrüstung-Aussehen für Robe der Bösen Erzmagier~
+@92 = ~Kettenhemd-Aussehen für Robe der Bösen Erzmagier~
+@93 = ~Plattenpanzer-Aussehen für Robe der Bösen Erzmagier~
+@94 = ~Geringe-Robe-Aussehen für Vecnas Robe~
+@95 = ~Ändere Aussehen von Vecnas Robe~
+@96 = ~Umhang-Robe-Aussehen für Vecnas Robe~
+@97 = ~Kapuzen-Robe-Aussehen für Vecnas Robe~
+@98 = ~Lederrüstung-Aussehen für Vecnas Robe~
+@99 = ~Kettenhemd-Aussehen für Vecnas Robe~
+@100 = ~Plattenpanzer-Aussehen für Vecnas Robe~
+@101 = ~Einheitliche Gift Immunität~
+@102 = ~Einheitliche Waffen Immunität~
+@103 = ~Einheitliche Kreatur-Immunitäten und Fähigkeiten~
+@104 = ~Einheitliche AI für herbeigerufene Nahkämpfer~
+@105 = ~Behandle alle angeborenen Fähigkeiten als nicht-magisch (nicht betroffen von wilder/toter Magie und Stille)~
+@106 = ~Behandle alle psionischen Fähigkeiten als nicht-magisch (nicht betroffen von wilder/toter Magie und Stille)~
+@107 = ~Behandle alle bardischen Fähigkeiten als nicht-magisch (nicht betroffen von wilder/toter Magie)~
+@131 = ~Romanzencheat: Isra startet Romanze mit neutralen Charakteren~
+@132 = ~Romanzencheat: Adrian startet Romanze mit Elfen~
+@133 = ~Verleihe Hexxat eine inaktive Kämpfer-Klasse~
+@134 = ~Die Datei ist nicht kompatibel~
+@135 = ~Die Datei ist korrupt oder hat ein unerwartetes Format~
+@136 = ~Angemessene XP Belohnungen für Verhüllte Magier~
+@137 = ~Isras romantische Musik stummschalten~
+@138 = ~Erlaube arkanes Zaubern trotz Rüstung~
+@139 = ~Erlaube Diebesfähigkeiten trotz Rüstung~
+@140 = ~Adrians romantische Musik stummschalten~
+@141 = ~Entferne Verzögerung von Verbesserter Hast~
+@142 = ~Bewegungsfreiheit verhindert keine Hast oder Bewegungsraten-Boni~
+@143 = ~Ruf hat keinen Einfluss auf Kaufpreise~
+@144 = ~Charisma hat einen stärkeren Einfluss auf Kaufpreise~
+@145 = ~Bessere Zauber-Progression für Magier~
+@146 = ~Bessere Zauber-Progression für Hexenmeister~
+@147 = ~Das Kompendium des Krieges~
+@148 = ~Betäubung~
+@149 = ~Betäubt~
+@150 = ~Beherrscht~
+@151 = ~Bezaubert~
+@152 = ~ist gelähmt~
+@153 = ~Festgehalten~
+@154 = ~Striktes Denken~
+@155 = ~ist verwirrt~
+@156 = ~Schlaf~
+@157 = ~wurde durch Schreckenszauber bekehrt!~
+@158 = ~Verlangsamt~
+@159 = ~Verlangsamen~
+@160 = ~Elfisches Buch~
+@161 = ~Ein schlichtes, unverziertes elfisches Buch.
+
+EIGENSCHAFTEN:
+
+Gewicht: 20~
+@162 = ~Zauber wirkungslos~
+@163 = ~Blind~
+@164 = ~Geblendet~
+@165 = ~Blindheit~
+@166 = ~Vergiften~
+@167 = ~wurde vergiftet~
+@168 = ~Krank~
+@169 = ~Von einer üblen Krankheit befallen~
+@170 = ~wurde versteinert~
+@171 = ~Zum Schweigen gebracht~
+@172 = ~wurde zum Schweigen gebracht~
+@173 = ~Diese Komponente wurde verworfen.~ 
+@174 = ~AI: Angriff~
+@175 = ~AI: Aus~
+@176 = ~AI: Schleichen~
+@177 = ~AI: Fallen Finden~
+@178 = ~AI: Untote bannen~
+@179 = ~AI: Bardenlied~
+@180 = ~Nicht möglich während des Kampfes~
+@181 = ~Nicht möglich wegen Zauberscheitern~
+@182 = ~Wird bereits ausgeführt~
+@183 = ~Schütze mich selbst~
+@184 = ~Schütze die andern~
+@185 = ~Schütze mit Flächenzaubern~
+@186 = ~Fertig~
+@187 = ~Modal Buff AI Script~
+@188 = ~Der Charakter kann schnell die meisten seiner defensiven Zauber in Vorbereitung auf den Kampf wirken. Drückt "%hotkey_self%" damit er sich selbst schützt. Drückt "%hotkey_other%" damit er andere Charaktere schützt. Drückt "%hotkey_party%" damit er großflächige Zauber auf sich selbst wirkt, in der Hoffnung die ganze Partie zu schützen.
+Zusätzlich habt Ihr Kontrolle über das grundlegende Verhalten des Charakters. Abhängig von seiner Klasse könnt Ihr mit "%hotkey_cycle%" durch verschiedene Modi (z.B. nach Fallen zu suchen oder Untote zu bannen) schalten. Das Skript kann mit "%hotkey_toggle%" an- und ausgeschaltet werden. (<script>)~
+@189 = ~Identifiziere alle Laden-Gegenstände~
+@190 = ~Vertraute können magische Schriftrollen sortieren~
+@191 = ~Alles sortiert! Endlich.~
+@192 = ~Kivans BG2 Musik stummschalten~
+@193 = ~BG1-NPC-Projekt Musik stummschalten~
+@194 = ~Panik~
+@195 = ~Panik~
+@196 = ~CtB: Überspringe Candlekeep Chores und cutscenes~
+@197 = ~RoT: Entferne cutscenes aus Chateau Irenicus~
+@198 = ~Benötigte Mod-Komponente fehlt~
+@199 = ~CtB: Verhüllten Magier stummschalten~
+@200 = ~CtB: Geschlechtskrankheit entfernen~
+@201 = ~CtB: Funktionierende Harfe von Myth Drannor~
+@202 = ~Wurde permanent immun gegen gegen Magie, die den Verstand angreift~
+@203 = ~Kann nun mehrere Zauber pro Runde wirken.~
+@204 = ~Ist gegen Versteinerung immun geworden.~
+@205 = ~Wurde für alle Ewigkeit mit der Wut eines Berserkers verflucht.~
+@206 = ~Hat nun eine höhere Chance kritische Treffer zu landen.~
+@207 = ~Kann 1/2 mal mehr pro Runde angreifen.~
+@208 = ~CHARISMA um 1 erhöht.~
+@209 = ~Kann nun alle Gegenstände benutzen.~
+@210 = ~Gesinnungswandel: NEUTRAL~
+@211 = ~Für immer taub.~
+@212 = ~STÄRKE um 1 erhöht.~
+@213 = ~GESCHICKLICHKEIT um 1 erhöht.~
+@214 = ~KONSTITUTION um 1 erhöht.~
+@215 = ~INTELLIGENZ um 1 erhöht.~
+@216 = ~WEISHEIT um 1 erhöht.~
+@217 = ~Zeitaufwand beim Zaubern verringert um 1.~
+@218 = ~Rüstungsklasse um 1 verbessert.~
+@219 = ~Waffenschaden um 1 erhöht.~
+@220 = ~Hat permanente Bewegungsfreiheit.~
+@221 = ~Regeneriert 1 Trefferpunkt pro Runde.~
+@222 = ~Immun gegen Gifte und Krankheiten.~
+

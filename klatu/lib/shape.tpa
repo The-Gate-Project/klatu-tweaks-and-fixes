@@ -1,0 +1,2552 @@
+
+
+
+DEFINE_ACTION_FUNCTION SF_IMPLEMENT_REVAMP_SHAPESHIFTING
+	INT_VAR	allowTalk = 0
+			allowDivine = 0
+			allowArcane = 0
+			divineThreshold = 0
+			arcaneThreshold = 0
+			digits = 0
+	STR_VAR	prefix = ~~
+			suffix = ~~
+			splDelegate = ~~
+			logSpells = ~~
+			logWeapon = ~~
+			failArcaneRes = ~~
+			failDivineRes = ~~
+			failTalkRes = ~~
+BEGIN
+	
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_SANITIZE_EFFECT_TARGETS
+			INT_VAR abilLen = 0x28
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_SANITIZE_EFFECT_TARGETS
+			INT_VAR abilLen = 0x38
+		END
+	BUT_ONLY
+	
+	// make all poly effects via 177(use eff) work the same way
+	// by tranfering any poly effect to the poly weapon
+	// also remove conflicting poly effects
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_TRANSFER_EFF_POLY_TO_ITM
+			INT_VAR abilLen = 0x28
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_TRANSFER_EFF_POLY_TO_ITM
+			INT_VAR abilLen = 0x38
+		END
+	BUT_ONLY
+	
+	// if 177 IDS target is EA - ANYONE we dissolve it into its acual effect
+	// also remove conflicting poly effects
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_DISSOLVE_GENERAL_POLY_EFFS
+			INT_VAR abilLen = 0x28
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_DISSOLVE_GENERAL_POLY_EFFS
+			INT_VAR abilLen = 0x38
+		END
+	BUT_ONLY
+	
+	// also gotta dissolve and delegate if only matching 177
+	
+	// also gotta rewrite targets so that if abil target = self
+	// then all effect preset targets --> self
+	
+	
+	// done with 177
+	// make all poly effects via 135 (poly) work the same way
+	// by transfering them to the corresponding weapon
+	// also remove conflicting poly effects
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_TRANSFER_POLY_EFFECTS_TO_ITM
+			INT_VAR abilLen = 0x28
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_TRANSFER_POLY_EFFECTS_TO_ITM
+			INT_VAR abilLen = 0x38
+		END
+	BUT_ONLY
+	
+	
+	
+	// now we move any matching ability effects to the weapon itself
+	// as long as they are appropriate
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_TRANSFER_MATCHING_EFFECTS_TO_ITM
+			INT_VAR abilLen = 0x28
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_TRANSFER_MATCHING_EFFECTS_TO_ITM
+			INT_VAR abilLen = 0x38
+		END
+	BUT_ONLY
+	
+	// if not all effects match or if item, then we delegate the matching effects
+	// into a new spell, if the effects are involuntary
+	// we also log involuntary spells (or their delegates) and will later complement poly immu with them
+	// clck27 should not delegate now, come on
+	LAF TRUNCATE_FILE STR_VAR file = EVAL ~%logSpells%~ END
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_CREATE_DELEGATES
+			INT_VAR abilLen = 0x28
+					digits = digits
+			STR_VAR prefix = EVAL ~%prefix%~
+					suffix = EVAL ~%suffix%~
+					splDelegate = EVAL ~%splDelegate%~
+					logSpells = EVAL ~%logSpells%~
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_CREATE_DELEGATES
+			INT_VAR abilLen = 0x38
+					digits = digits
+			STR_VAR prefix = EVAL ~%prefix%~
+					suffix = EVAL ~%suffix%~
+					splDelegate = EVAL ~%splDelegate%~
+					logSpells = EVAL ~%logSpells%~
+		END
+	BUT_ONLY
+	
+	
+	// implement spell failure based on install options
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_IMPLEMENT_FAILURE
+			INT_VAR abilLen = 0x28
+					allowTalk = allowTalk
+					allowDivine = allowDivine
+					allowArcane = allowArcane
+					divineThreshold = divineThreshold
+					arcaneThreshold = arcaneThreshold
+			STR_VAR failArcaneRes = EVAL ~%failArcaneRes%~
+					failDivineRes = EVAL ~%failDivineRes%~
+					failTalkRes = EVAL ~%failTalkRes%~
+		END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_IMPLEMENT_FAILURE
+			INT_VAR abilLen = 0x38
+					allowTalk = allowTalk
+					allowDivine = allowDivine
+					allowArcane = allowArcane
+					divineThreshold = divineThreshold
+					arcaneThreshold = arcaneThreshold
+			STR_VAR failArcaneRes = EVAL ~%failArcaneRes%~
+					failDivineRes = EVAL ~%failDivineRes%~
+					failTalkRes = EVAL ~%failTalkRes%~
+		END
+	BUT_ONLY
+	
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_IMPLEMENT_DISPELLABILITY END
+	BUT_ONLY
+	
+	LAF TRUNCATE_FILE STR_VAR file = EVAL ~%logWeapon%~ END
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_FINALIZE_POLY_WEAPON STR_VAR logWeapon = EVAL ~%logWeapon%~ END
+	BUT_ONLY
+	// after this poly weapons cannot be detected via opcode 135 anymore
+	
+	
+	COPY ~%logWeapon%~ ~%logWeapon%~
+		LPF GET_FILE_SIZE STR_VAR file = EVAL ~%logWeapon%~ RET logLen = value END
+	//
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_COMPLEMENT_REMOVE_WEAPON INT_VAR logLen = logLen abilLen = 0x28 STR_VAR logWeapon = EVAL ~%logWeapon%~ END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_COMPLEMENT_REMOVE_WEAPON INT_VAR logLen = logLen abilLen = 0x38 STR_VAR logWeapon = EVAL ~%logWeapon%~ END
+	BUT_ONLY
+	
+	COPY ~%logSpells%~ ~%logSpells%~
+		LPF GET_FILE_SIZE STR_VAR file = EVAL ~%logSpells%~ RET logLen = value END
+	//
+	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+		LPF SF_COMPLEMENT_IMMUNITY INT_VAR logLen = logLen abilLen = 0x28 STR_VAR logSpells = EVAL ~%logSpells%~ END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
+		LPF SF_COMPLEMENT_IMMUNITY INT_VAR logLen = logLen abilLen = 0x38 STR_VAR logSpells = EVAL ~%logSpells%~ END
+	BUT_ONLY
+	COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+		LPF SF_COMPLEMENT_IMMUNITY_CRE INT_VAR logLen = logLen STR_VAR logSpells = EVAL ~%logSpells%~ END
+	BUT_ONLY
+	
+END
+
+
+
+DEFINE_PATCH_FUNCTION SF_SANITIZE_EFFECT_TARGETS
+	INT_VAR abilLen = 0x28
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		READ_LONG 0x6a fxOff
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			PATCH_IF (abilLen = 0x28) BEGIN
+				READ_SHORT (off + 0x26) proj
+			END ELSE BEGIN
+				READ_SHORT (off + 0x2a) proj
+			END
+			READ_BYTE (off + 0x0c) abTarget
+			PATCH_IF (proj = 1 AND abTarget = 5) BEGIN
+				READ_SHORT (off + 0x1e) afxNum
+				READ_SHORT (off + 0x20) afxIdx
+				hasPoly = 0
+				FOR (f = 0; f < afxNum; ++f) BEGIN
+					off = fxOff + (afxIdx + f) * 0x30
+					LPF READ_EFFECT
+						INT_VAR off = off
+						RET 	opcode = opcode 
+								targetA = target
+								prob1A = prob1
+								prob2A = prob2
+								sTypeA = sType
+								sBonusA = sBonus
+								resCre = res
+					END
+					PATCH_IF (opcode = 135) BEGIN
+						LPF SANITIZE_CRE_IF_EXISTS STR_VAR res = EVAL ~%resCre%~ RET ok = ok END
+						PATCH_IF ok BEGIN
+							FOR (g = 0; g < afxNum; ++g) BEGIN
+								off = fxOff + (afxIdx + g) * 0x30
+								LPF READ_EFFECT
+									INT_VAR off = off
+									RET 	opcode = opcode 
+											targetB = target
+											prob1B = prob1
+											prob2B = prob2
+											sTypeB = sType
+											sBonusB = sBonus
+											resItm = res
+								END
+								PATCH_IF (opcode = 111 AND (targetA < 3 OR targetA = 9) AND (targetB < 3 OR targetA = 9) AND prob1A = prob1B AND prob2A = prob2B AND sTypeA = sTypeB AND sBonusA = sBonusB) BEGIN
+									LPF SANITIZE_ITM_IF_EXISTS STR_VAR res = EVAL ~%resItm%~ RET hasPoly = ok END
+									PATCH_IF hasPoly BEGIN
+										f = afxNum
+									END
+								END
+							END
+						END
+					END
+				END
+				PATCH_IF NOT hasPoly BEGIN
+					FOR (f = 0; f < afxNum; ++f) BEGIN
+						off = fxOff + (afxIdx + f) * 0x30
+						LPF SF_POINTS_TO_VALID_POLY_WEAPON INT_VAR off = off RET hasPoly = ok END
+						PATCH_IF hasPoly BEGIN
+							f = afxNum
+						END
+					END
+				END
+				PATCH_IF hasPoly BEGIN				
+					FOR (f = 0; f < afxNum; ++f) BEGIN
+						off = fxOff + (afxIdx + f) * 0x30
+						READ_BYTE (off + 0x02) target
+						PATCH_IF (target < 3 OR target = 9) BEGIN	// preset
+							WRITE_BYTE (off + 0x02) 1	// self
+						END
+					END
+				END
+			END
+		END
+	END
+END
+
+// becaue we no longer use the poly opcode
+// we must make sure that any polyback removes all of the poly weapons
+DEFINE_PATCH_FUNCTION SF_COMPLEMENT_REMOVE_WEAPON
+	INT_VAR logLen = logLen
+			abilLen = 0x28
+	STR_VAR logWeapon = EVAL ~%logWeapon%~ 
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_COMPLEMENT_REMOVE_WEAPON_ABIL
+				INT_VAR logLen = logLen
+						abilLen = abilLen
+						abilIdx = a
+						fxIdx = afxIdx
+						fxNum = afxNum
+						isAbil = 1
+				STR_VAR logWeapon = EVAL ~%logWeapon%~
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_COMPLEMENT_REMOVE_WEAPON_ABIL
+			INT_VAR logLen = logLen
+					abilLen = abilLen
+					fxIdx = 0
+					fxNum = fxNum
+					isAbil = 0
+			STR_VAR logWeapon = EVAL ~%logWeapon%~
+		END
+	END
+END
+	
+DEFINE_PATCH_FUNCTION SF_COMPLEMENT_REMOVE_WEAPON_ABIL
+	INT_VAR logLen = 0
+			abilLen = 0x28
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 1
+	STR_VAR logWeapon = EVAL ~%logWeapon%~
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + (fxIdx + f) * 0x30
+		LPF READ_EFFECT INT_VAR off = off RET opcode = opcode res = res END
+		PATCH_IF (opcode = 135 OR opcode = 151 OR opcode = 111) BEGIN
+			PATCH_PRINT ~patching %SOURCE_FILE%...~
+			FOR (i = 0; i < logLen; i += 8) BEGIN
+				LPF READ_LOG INT_VAR off = i STR_VAR file = EVAL ~%logWeapon%~ RET entry = value END
+				FOR (g = fxNum - 1; g >= 0; --g) BEGIN
+					off = fxOff + (fxIdx + g) * 0x30
+					LPF SF_EFFECTS_CORRESPOND
+						INT_VAR idxA = fxIdx + f idxB = fxIdx + g
+						RET		ok = ok opcodeB = opcodeB resB = resB
+					END
+					PATCH_IF (ok AND opcodeB = 112 AND ~%resB%~ STRING_EQUAL_CASE ~%entry%~) BEGIN
+						PATCH_IF isAbil BEGIN
+							LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = g END
+						END ELSE BEGIN
+							LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g END
+						END
+						PATCH_IF (g < f) BEGIN
+							--f
+						END
+						--fxNum
+					END
+				END
+				PATCH_IF NOT (opcode = 111 AND ~%entry%~ STRING_EQUAL_CASE ~%res%~) BEGIN
+					PATCH_IF isAbil BEGIN
+						LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+						WRITE_SHORT off 112
+						WRITE_LONG (off + 0x04) 0
+						WRITE_LONG (off + 0x08) 0
+						WRITE_ASCIIE (off + 0x14) ~%entry%~ #8
+					END ELSE BEGIN
+						LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+						WRITE_SHORT off 112
+						WRITE_LONG (off + 0x04) 0
+						WRITE_LONG (off + 0x08) 0
+						WRITE_ASCIIE (off + 0x14) ~%entry%~ #8
+					END
+					++f
+					++fxNum
+				END
+			END
+		END
+	END
+END
+
+
+DEFINE_PATCH_FUNCTION SF_POINTS_TO_VALID_POLY_WEAPON
+	INT_VAR off = 0
+	RET		ok
+			resItm
+			resCre
+BEGIN
+	ok = 0
+	TEXT_SPRINT resCre ~~
+	LPF READ_EFFECT INT_VAR off = off RET opcode = opcode resItm = res END
+	PATCH_IF (opcode = 111) BEGIN
+		LPF SANITIZE_ITM_IF_EXISTS STR_VAR res = EVAL ~%resItm%~ RET ok = ok END
+		PATCH_IF ok BEGIN
+			LPF SF_ITM_IS_VALID_POLY_WEAPON STR_VAR resItm = EVAL ~%resItm%~ RET ok = ok resCre = resCre END
+		END
+	END
+END
+
+
+DEFINE_PATCH_FUNCTION SF_TRANSFER_EFF_POLY_TO_ITM
+	INT_VAR abilLen = 0x28
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_TRANSFER_EFF_POLY_TO_ITM_ABIL
+				INT_VAR abilLen = abilLen
+						abilIdx = a
+						fxIdx = afxIdx
+						fxNum = afxNum
+						isAbil = 1
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_TRANSFER_EFF_POLY_TO_ITM_ABIL
+			INT_VAR abilLen = abilLen
+					fxIdx = 0
+					fxNum = fxNum
+					isAbil = 0
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_TRANSFER_EFF_POLY_TO_ITM_ABIL
+	INT_VAR abilLen = 0x28
+			abilIdx = 0
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 1
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		LPF SF_POINTS_TO_VALID_EFF_FILE
+			INT_VAR off = fxOff + (fxIdx + f) * 0x30
+			RET 	ok = ok
+					effOpcodeA = opcode
+					effResA = res
+		END
+		PATCH_IF (ok AND effOpcodeA = 135 OR effOpcodeA = 151) BEGIN
+			PATCH_PRINT ~%SOURCE_FILE% :: opc 177 (use eff): %effOpcodeA% --> %effResA%.cre~
+			LPF SANITIZE_CRE_IF_EXISTS STR_VAR res = EVAL ~%effResA%~ RET ok = ok END
+			PATCH_IF ok BEGIN
+				FOR (g = fxNum - 1; g >= 0; --g) BEGIN
+					LPF SF_EFFECTS_CORRESPOND
+						INT_VAR idxA = fxIdx + f idxB = fxIdx + g
+						RET 	ok = ok
+								offB = offB
+								param1A = param1A
+								param2A = param2A
+								param1B = param1B
+								param2B = param2B
+					END
+					PATCH_IF ok BEGIN
+						LPF SF_POINTS_TO_VALID_EFF_FILE
+							INT_VAR off = offB
+							RET 	ok = ok
+									effOpcodeB = opcode
+									effResB = res
+						END
+					END
+					PATCH_IF (ok AND effOpcodeB = 111 AND param1A = param1B AND param2A = param2B) BEGIN
+						LPF SANITIZE_ITM_IF_EXISTS STR_VAR res = EVAL ~%effResB%~ RET ok = ok END
+						PATCH_IF ok BEGIN
+							// points to a valid weapon
+							LPF SF_ITM_IS_VALID_POLY_WEAPON STR_VAR resItm = EVAL ~%effResB%~ RET ok = ok END
+							PATCH_IF NOT ok BEGIN
+								PATCH_PRINT ~... transfering poly effect from %SOURCE_FILE% to %effResB%.itm~
+								INNER_ACTION BEGIN
+									COPY_EXISTING ~%effResB%.itm~ ~override~
+										// add poly effect to weapon
+										LPF REMOVE_ALL_EFFECTS_ITM INT_VAR opcode = 111 END
+										LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 135 STR_VAR res = EVAL ~%effResA%~ END
+									//
+								END
+							END ELSE BEGIN
+								// make sure the poly weapon doesn't do anything stupid now
+								// like create another magical weapon for example
+								INNER_ACTION BEGIN
+									COPY_EXISTING ~%effResB%.itm~ ~override~
+										// add poly effect to weapon
+										LPF REMOVE_ALL_EFFECTS_ITM INT_VAR opcode = 111 END
+									//
+								END
+							END
+							FOR (h = fxNum - 1; h >= 0; --h) BEGIN
+								// remove all coresp 177: 111 and 177: 135, including f, except g
+								PATCH_IF (h != g) BEGIN
+									LPF SF_EFFECTS_CORRESPOND
+										INT_VAR idxA = fxIdx + g idxB = fxIdx + h
+										RET 	ok = ok
+												offB = offB
+												param1A = param1A
+												param2A = param2A
+												param1B = param1B
+												param2B = param2B
+									END
+									PATCH_IF ok BEGIN
+										LPF SF_POINTS_TO_VALID_EFF_FILE
+											INT_VAR off = offB
+											RET 	ok = ok
+													effOpcodeB = opcode
+										END
+										PATCH_IF (ok AND (effOpcodeB = 111 OR effOpcodeB = 135 OR effOpcodeB = 151) AND param1A = param1B AND param2A = param2B) BEGIN
+											PATCH_IF isAbil BEGIN
+												LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = h END
+											END ELSE BEGIN
+												LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = h END
+											END
+											PATCH_IF (h < f) BEGIN
+												--f
+											END
+											PATCH_IF (h < g) BEGIN
+												--g
+											END
+											--fxNum
+										END
+										
+									END
+								END
+							END
+							g = 0	// terminate loop
+						END
+					END
+				END
+			END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_DISSOLVE_GENERAL_POLY_EFFS
+	INT_VAR abilLen = 0x28
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_DISSOLVE_GENERAL_POLY_EFFS_ABIL
+				INT_VAR abilLen = abilLen
+						abilIdx = a
+						fxIdx = afxIdx
+						fxNum = afxNum
+						isAbil = 1
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_DISSOLVE_GENERAL_POLY_EFFS_ABIL
+			INT_VAR abilLen = abilLen
+					fxIdx = 0
+					fxNum = fxNum
+					isAbil = 0
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_DISSOLVE_GENERAL_POLY_EFFS_ABIL
+	INT_VAR abilLen = 0x28
+			abilIdx = 0
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 1
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		fOff = fxOff + (fxIdx + f) * 0x30
+		LPF SF_POINTS_TO_VALID_EFF_FILE
+			INT_VAR off = fOff
+			RET 	ok = ok
+					effOpcodeA = opcode		// keep	111
+					effResA = res			// keep
+		END
+		PATCH_IF (ok AND effOpcodeA = 111) BEGIN
+			LPF SANITIZE_ITM_IF_EXISTS STR_VAR res = EVAL ~%effResA%~ RET ok = ok END
+			PATCH_IF ok BEGIN
+				LPF SF_ITM_IS_VALID_POLY_WEAPON STR_VAR resItm = ~%effResA%~ RET ok = ok END
+			END
+			PATCH_IF ok BEGIN
+				PATCH_PRINT ~%SOURCE_FILE% :: opc 177 (use eff): 111 (mwep) --> %effResA%.itm~
+				// f points to 177:111 with valid itm
+				FOR (g = fxNum - 1; g >= 0; --g) BEGIN
+					// remove all coresp 177: 111 and 177: 135, except f
+					LPF SF_EFFECTS_CORRESPOND
+						INT_VAR idxA = fxIdx + f idxB = fxIdx + g
+						RET 	ok = ok
+								offB = offB
+								param1A = param1A
+								param2A = param2A
+								param1B = param1B
+								param2B = param2B
+					END
+					PATCH_IF ok BEGIN
+						LPF SF_POINTS_TO_VALID_EFF_FILE
+							INT_VAR off = offB
+							RET 	ok = ok
+									effOpcode = opcode
+									effParam1 = param1
+									effParam2 = param2
+									effRes = res
+						END
+					END
+					PATCH_IF ok BEGIN
+						PATCH_IF (g != f AND (effOpcode = 111 OR effOpcode = 135 OR effOpcode = 151) AND param1A = param1B AND param2A = param2B) BEGIN
+							PATCH_IF isAbil BEGIN
+								LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = g END
+							END ELSE BEGIN
+								LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g END
+							END
+							PATCH_IF (g < f) BEGIN
+								--f
+							END
+							--fxNum
+						END ELSE BEGIN
+							// did not remove
+							PATCH_IF (param1B = 0 AND param2B = 2) BEGIN
+								// rewrite it
+								fOff = fxOff + (fxIdx + g) * 0x30
+								LPF READ_EFFECT		// paramters of the 177
+									INT_VAR	off = fOff
+									RET		target = target		// keep
+											power = power		// keep
+											timing = timing		// keep
+											resist = resist		// keep
+											delay = delay		// keep
+											prob1 = prob1		// keep
+											prob2 = prob2		// keep
+											dNum = dNum			// keep
+											dSize = dSize		// keep
+											sType = sType		// keep
+											sBonus = sBonus		// keep
+											special = special	// keep
+								END
+								LPF WRITE_EFFECT
+									INT_VAR off = fOff
+											opcode = effOpcode
+											target = target
+											power = power
+											param1 = effParam1
+											param2 = effParam2
+											timing = timing
+											resist = resist
+											delay = delay
+											prob1 = prob1
+											prob2 = prob2
+											dNum = dNum
+											dSize = dSize
+											sType = sType
+											sBonus = sBonus
+											special = special
+									STR_VAR	res = EVAL ~%effRes%~
+								END
+							END
+						END
+					END
+				END
+			END
+		END
+	END
+END
+
+
+DEFINE_PATCH_FUNCTION SF_POINTS_TO_VALID_EFF_FILE
+	INT_VAR off = 0
+	RET		ok		effRes
+			opcode	target	power	param1	param2	timing	resist	delay
+			prob1	prob2	res		dNum	dSize	sType	sBonus	special
+BEGIN
+	ok = 0
+	opcode = 0
+	target = 0
+	power = 0
+	param1 = 0
+	param2 = 0
+	timing = 0
+	resist = 0
+	delay = 0
+	prob1 = 0
+	prob2 = 0
+	TEXT_SPRINT res ~~
+	dNum = 0
+	dSize = 0
+	sType = 0
+	sBonus = 0
+	special = 0
+	TEXT_SPRINT effRes ~~
+	READ_SHORT off op
+	PATCH_IF (op = 177) BEGIN
+		READ_ASCII (off + 0x14) effRes (8) NULL
+		PATCH_IF FILE_EXISTS_IN_GAME ~%effRes%.eff~ BEGIN
+			INNER_PATCH_FILE ~%effRes%.eff~ BEGIN
+				PATCH_IF (SOURCE_SIZE >= 0x110) BEGIN
+					ok = 1
+					LPF READ_EFFECT_CRE
+						INT_VAR off = 8
+						RET		opcode = opcode		target = target
+								power = power		param1 = param1
+								param2 = param2		timing = timing
+								resist = resist		delay = delay
+								prob1 = prob1		prob2 = prob2
+								res = res			dNum = dNum
+								dSize = dSize		sType = sType
+								sBonus = sBonus		special = special
+					END
+				END
+			END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_TRANSFER_POLY_EFFECTS_TO_ITM
+	INT_VAR abilLen = 0x28
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_TRANSFER_POLY_EFFECTS_TO_ITM_ABIL
+				INT_VAR abilLen = abilLen
+						abilIdx = a
+						fxIdx = afxIdx
+						fxNum = afxNum
+						isAbil = 1
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_TRANSFER_POLY_EFFECTS_TO_ITM_ABIL
+			INT_VAR abilLen = abilLen
+					fxIdx = 0
+					fxNum = fxNum
+					isAbil = 0
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_TRANSFER_POLY_EFFECTS_TO_ITM_ABIL
+	INT_VAR abilLen = 0x28
+			abilIdx = 0
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 1
+BEGIN
+	READ_LONG 0x6a fxOff
+	// find 135
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		LPF READ_EFFECT
+			INT_VAR off = fxOff + (fxIdx + f) * 0x30
+			RET		opcode = opcode
+					resCre = res
+		END
+		PATCH_IF (opcode = 135 OR opcode = 151) BEGIN
+			LPF SANITIZE_CRE_IF_EXISTS STR_VAR res = EVAL ~%resCre%~ RET ok = ok END
+			PATCH_IF ok BEGIN
+				PATCH_PRINT ~%SOURCE_FILE% :: opc %opcode% --> %resCre%.cre~
+				// find matching 111
+				FOR (g = fxNum - 1; g >= 0; --g) BEGIN
+					LPF SF_EFFECTS_CORRESPOND
+						INT_VAR	idxA = fxIdx + f idxB = fxIdx + g
+						RET		ok = ok 
+								opcodeB = opcodeB
+								resItm = resB
+					END
+					PATCH_IF (ok AND opcodeB = 111) BEGIN
+						LPF SANITIZE_ITM_IF_EXISTS STR_VAR res = EVAL ~%resItm%~ RET ok = ok END
+						PATCH_IF ok BEGIN
+							LPF SF_ITM_IS_VALID_POLY_WEAPON STR_VAR resItm = EVAL ~%resItm%~ RET ok = ok END
+						END
+						PATCH_IF NOT ok BEGIN
+							PATCH_PRINT ~... transfering poly effect from %SOURCE_FILE% to %resItm%.itm~
+							INNER_ACTION BEGIN
+								COPY_EXISTING ~%resItm%.itm~ ~override~
+									// add poly effect to weapon
+									LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 135 STR_VAR res = EVAL ~%resCre%~ END
+								//
+							END
+						END
+						// remove all other matching 135 and 111, including f, except g
+						FOR (h = fxNum - 1; h >= 0; --h) BEGIN
+							PATCH_IF (h != g) BEGIN
+								LPF SF_EFFECTS_CORRESPOND
+									INT_VAR	idxA = fxIdx + g idxB = fxIdx + h
+									RET		ok = ok 
+											opcodeB = opcodeB
+								END
+								PATCH_IF (ok AND (opcodeB = 111 OR opcodeB = 135 OR opcodeB = 151 OR opcodeB = 60 OR opcodeB = 144)) BEGIN
+									PATCH_IF isAbil BEGIN
+										LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = h END
+									END ELSE BEGIN
+										LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = h END
+									END
+									PATCH_IF (h < f) BEGIN
+										--f
+									END
+									PATCH_IF (h < g) BEGIN
+										--g
+									END
+									--fxNum
+								END
+							END
+						END
+						g = 0 // terminate loop
+					END
+				END
+			END
+		END
+	END
+END
+
+
+
+DEFINE_PATCH_FUNCTION SF_TRANSFER_MATCHING_EFFECTS_TO_ITM
+	INT_VAR abilLen = 0x28
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_TRANSFER_MATCHING_EFFECTS_TO_ITM_ABIL
+				INT_VAR abilLen = abilLen
+						abilIdx = a
+						fxIdx = afxIdx
+						fxNum = afxNum
+						isAbil = 1
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_TRANSFER_MATCHING_EFFECTS_TO_ITM_ABIL
+			INT_VAR abilLen = abilLen
+					fxIdx = 0
+					fxNum = fxNum
+					isAbil = 0
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_TRANSFER_MATCHING_EFFECTS_TO_ITM_ABIL
+	INT_VAR abilLen = 0x28
+			abilIdx = 0
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 1
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		LPF SF_POINTS_TO_VALID_POLY_WEAPON
+			INT_VAR off = fxOff + (fxIdx + f) * 0x30
+			RET ok = ok resItm = resItm
+		END
+		PATCH_IF ok BEGIN
+			FOR (g = fxNum - 1; g >= 0; --g) BEGIN
+				LPF SF_EFFECTS_CORRESPOND
+					INT_VAR idxA = fxIdx + f idxB = fxIdx + g
+					RET		ok = ok
+							opcodeB = opcodeB
+							param1B = param1B
+							param2B = param2B
+							resB = resB
+				END
+				PATCH_IF ok BEGIN
+					ok = 1
+					// these should not apply while equipped
+					PATCH_MATCH opcodeB WITH
+						4	// cure berserk
+						11	// cure poison
+						12	// damage
+						13	// death
+						14	// defrost
+						26	// cure curse
+						32	// raise dead
+						41	// gfx sparkle
+						43	// cure petri
+						46	// unstun
+						47	// break invisi
+						48	// break silence
+						55	// slay
+						58	// dispel
+						64	// remove infra
+						67	// summon cre
+						68	// unsummon cre
+						70	// break non-detec
+						75	// cure blind
+						77	// cure feeble
+						79	// cure disease
+						80	// cure deaf
+						105	// gold mod
+						108	// rep mod
+						111	// create mag wep		exlude self
+						112	// remove item
+						115	// detect align
+						116	// break invisi
+						117	// reveal area
+						122	// create item
+						123	// remove item
+						124	// teleport
+						125	// unlock
+						127	// monster summon
+						134	// petri
+						136	// force visible
+						139	// display string
+						140 // gfx casting glow
+						141	// gfx lighting fx
+						143	// create item in slot
+						146	// cast spell
+						147	// learn spell
+						148	// cast spell 
+						150	// find traps
+						152	// play movie
+						161	// cure horror
+						162	// cure hold
+						164	// cure drunk
+						165	// pause
+						168	// remove creature
+						170	// damage animation
+						171	// give ability
+						172	// remove spell
+						174	// play sound
+						177	// use eff
+						186	// move to area
+						//187	// set local var
+						192	// find fam
+						195	// lose death con
+						209	// pw kill
+						210	// pw stun
+						211	// imrison
+						212	// freedom
+						213	// maze
+						214	// select spell
+						215	// gfx play effect
+						216	// level drain
+						217	// pw sleep
+						220	// remove spell by school
+						221	// remove spell by type
+						224	// cure level drain
+						229	// dispel spell by school
+						230	// dispel spell by type
+						234	// contingency
+						235	// wing buffet
+						238	// disintegrate
+						239	// farsight
+						240	// remove icon
+						242	// cure confus
+						243	// drain charge
+						244	// drain spell
+						252	// set trap
+						253	// add map marker
+						254	// remove map marker
+						255	// create item
+						256	// spell seq add
+						257	// spell seq create
+						258	// spell seq activate
+						260	// spell seq activate
+						261	// regain spells
+						264	// drop weapons
+						265	// mod global var
+						269	// shake window
+						270	// unpause
+						271	// remove avatar
+						273	// air freshener
+						274	// teleport
+						283	// use eff cursed
+						298	// cut250a
+						304	// mas rais dead
+						307	// use tracking
+						311	// random wish spell
+						312	// immu sequester
+						315	// remove anim 
+						316	// rest
+						// 318	// ??
+						320	// change weather
+						321	// remove resource effects
+						326	// apply effects list
+						327	// show visual effect
+						329	// slow poison
+						330	// float text
+						331	// summon
+						333	// static charge (?)
+						334	// turn undead
+						335	// seven eyes
+						336 // seven eyey overlay
+						337	// remove opcode effects
+						342	// override creature data
+						343	// HP swap
+						BEGIN
+							ok = 0
+						END
+						DEFAULT 
+					END
+					
+					
+					
+					PATCH_IF ok BEGIN
+						INNER_ACTION BEGIN
+							COPY_EXISTING ~%resItm%.itm~ ~override~
+								LPF ADD_DEFAULT_EFFECT_ITM
+									INT_VAR opcode = opcodeB
+											param1 = param1B
+											param2 = param2B
+									STR_VAR res = EVAL ~%resB%~
+								END
+							//
+						END
+						PATCH_IF isAbil BEGIN
+							LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = g END
+						END ELSE BEGIN
+							LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g END
+						END
+						PATCH_IF (g < f) BEGIN
+							--f
+						END
+						--fxNum
+					END
+				END
+			END
+		END
+	END
+END
+	
+DEFINE_PATCH_FUNCTION SF_CREATE_DELEGATES
+	INT_VAR abilLen = 0x28
+			digits = 0
+	STR_VAR	prefix = ~~
+			suffix = ~~
+			splDelegate = ~~
+			logSpells = ~~
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_BYTE (off + 0x0c) abilTarget
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_CREATE_DELEGATES_ABIL
+				INT_VAR abilLen = abilLen
+						abilIdx = a
+						fxIdx = afxIdx
+						fxNum = afxNum
+						isAbil = 1
+						abilTarget = abilTarget
+						digits = digits
+				STR_VAR	prefix = EVAL ~%prefix%~
+						suffix = EVAL ~%suffix%~
+						splDelegate = EVAL ~%splDelegate%~
+						logSpells = EVAL ~%logSpells%~
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_CREATE_DELEGATES_ABIL
+			INT_VAR abilLen = abilLen
+					abilIdx = 0
+					fxIdx = 0
+					fxNum = fxNum
+					isAbil = 0
+					abilTarget = 0
+					digits = digits
+			STR_VAR	prefix = EVAL ~%prefix%~
+					suffix = EVAL ~%suffix%~
+					splDelegate = EVAL ~%splDelegate%~
+					logSpells = EVAL ~%logSpells%~
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_CREATE_DELEGATES_ABIL
+	INT_VAR abilLen = 0x28
+			abilIdx = 0
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 1
+			abilTarget = 0
+			digits = 0
+	STR_VAR	prefix = ~~
+			suffix = ~~
+			splDelegate = ~~
+			logSpells = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + (fxIdx + f) * 0x30
+		READ_BYTE (off + 0x02) target	// effect target
+		READ_SHORT off opcode
+		LPF SF_POINTS_TO_VALID_POLY_WEAPON INT_VAR off = off RET ok = ok resCre = resCre END
+		PATCH_IF ok BEGIN
+			PATCH_IF NOT (target = 1 OR target = 3) BEGIN
+				dontDelegate = 1
+				PATCH_IF (abilLen = 0x38) BEGIN
+					dontDelegate = 0
+				END ELSE BEGIN
+					LPF SF_ALL_EFFECTS_CORRESPOND
+						INT_VAR fxIdx = fxIdx
+								fxNum = fxNum
+						RET		dontDelegate = ok
+					END
+				END
+				PATCH_IF NOT dontDelegate BEGIN
+					LPF GENERATE_RES_NAME
+						INT_VAR	digits = digits
+						STR_VAR	prefix = EVAL ~%prefix%~
+								suffix = EVAL ~%suffix%~
+								ext = ~spl~
+						RET		resNew = name
+					END
+					// first we copy the effec to a cast spell newRes
+					PATCH_IF isAbil BEGIN
+						LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = fxNum RET off = off END
+						WRITE_SHORT off 146
+						WRITE_LONG (off + 0x08) 1
+						WRITE_BYTE (off + 0x0c) 1
+						WRITE_BYTE (off + 0x0d) 0
+						WRITE_LONG (off + 0x0e) 0
+						WRITE_ASCIIE (off + 0x14) ~%resNew%~ #8
+					END ELSE BEGIN
+						LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = fxNum RET off = off END
+						WRITE_SHORT off 146
+						WRITE_LONG (off + 0x08) 1
+						WRITE_BYTE (off + 0x0c) 1
+						WRITE_BYTE (off + 0x0d) 0
+						WRITE_LONG (off + 0x0e) 0
+						WRITE_ASCIIE (off + 0x14) ~%resNew%~ #8
+					END
+					++fxNum
+					INNER_ACTION BEGIN
+						COPY ~%splDelegate%~ ~override/%resNew%.spl~
+						//
+					END
+					FOR (g = fxNum - 2; g >= 0; --g) BEGIN	// only parse below new effect
+						LPF SF_EFFECTS_CORRESPOND
+							INT_VAR idxA = fxIdx + fxNum - 1
+									idxB = fxIdx + g
+							RET		ok = ok
+									opcodeB = opcodeB
+									targetB = targetB
+									powerB = powerB
+									param1B = param1B
+									param2B = param2B
+									timingB = timingB
+									resistB = resistB
+									delayB = delayB
+									prob1B = prob1B
+									prob2B = prob2B
+									resB = resB
+									dNumB = dNumB
+									dSizeB = dSizeB
+									sTypeB = sTypeB
+									sBonusB = sBonusB
+									specialB = specialB
+						END
+						PATCH_IF ok BEGIN
+							// if matches
+							// copy to spell
+							// remove g, including f
+							INNER_ACTION BEGIN
+								COPY_EXISTING ~%resNew%.spl~ ~override~
+									LPF INSERT_ABILITY_EFFECT_SPL INT_VAR abilIdx = 0 idx = 0 RET off = off END
+									LPF WRITE_EFFECT 
+										INT_VAR off = off
+												opcode = opcodeB
+												target = targetB
+												power = 0	//powerB
+												param1 = param1B
+												param2 = param2B
+												timing = timingB
+												resist = resistB
+												delay = delayB
+												prob1 = 100	//prob1B
+												prob2 = 0	//prob2B
+												dNum = 0//dNumB
+												dSize = 0//dSizeB
+												sType = 0//sTypeB
+												sBonus = 0//sBonusB
+												special = 0//specialB
+										STR_VAR res = EVAL ~%resB%~
+									END
+								//
+							END
+							PATCH_IF isAbil BEGIN
+								LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = g END
+								PATCH_IF (g < f) BEGIN
+									--f
+								END
+								--fxNum
+							END ELSE BEGIN
+								LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g END
+								PATCH_IF (g < f) BEGIN
+									--f
+								END
+								--fxNum
+							END
+						END
+					END
+					LPF UPDATE_LOG_UNIQUE STR_VAR file = EVAL ~%logSpells%~ value = EVAL ~%resNew%~ END
+				END ELSE BEGIN
+					LPF UPDATE_LOG_UNIQUE STR_VAR file = EVAL ~%logSpells%~ value = EVAL ~%SOURCE_RES%~ END
+				END
+			END ELSE BEGIN
+				// is voluntary
+				// set casting time to 0
+				PATCH_IF (isAbil AND abilLen = 0x28) BEGIN
+					READ_LONG 0x64 abilOff
+					WRITE_SHORT (abilOff + abilIdx * 0x28 + 0x12) 0
+				END
+			END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_IMPLEMENT_DISPELLABILITY
+BEGIN
+	LPF SANITIZE_SPL RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * 0x28
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_IMPLEMENT_DISPELLABILITY_ABIL INT_VAR fxIdx = afxIdx fxNum = afxNum END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_IMPLEMENT_DISPELLABILITY_ABIL INT_VAR fxIdx = 0 fxNum = fxNum END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_IMPLEMENT_DISPELLABILITY_ABIL
+	INT_VAR fxIdx = 0
+			fxNum = 0
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = 0; f < fxNum; ++f) BEGIN
+		off = fxOff + (fxIdx + f) * 0x30
+		READ_BYTE (off + 0x02) target
+		LPF SF_POINTS_TO_VALID_POLY_WEAPON INT_VAR off = off RET ok = ok resItm = resItm END
+		PATCH_IF ok AND NOT (target = 1 OR target = 3) BEGIN
+			INNER_ACTION BEGIN
+				COPY_EXISTING ~%resItm%.itm~ ~override~
+					READ_BYTE 0x1b flagByte
+					WRITE_BYTE 0x1b (flagByte BAND 0b11111110) // make dispellable
+				BUT_ONLY
+			END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_IMPLEMENT_FAILURE
+	INT_VAR abilLen = 0x28
+			allowTalk = 0
+			allowDivine = 0
+			allowArcane = 0
+			divineThreshold = 0
+			arcaneThreshold = 0
+	STR_VAR	failArcaneRes = ~~
+			failDivineRes = ~~
+			failTalkRes = ~~
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_BYTE (off + 0x0c) abilTarget
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_IMPLEMENT_FAILURE_ABIL
+				INT_VAR abilLen = abilLen
+						abilIdx = a
+						fxIdx = afxIdx
+						fxNum = afxNum
+						isAbil = 1
+						abilTarget = abilTarget
+						allowTalk = allowTalk
+						allowDivine = allowDivine
+						allowArcane = allowArcane
+						divineThreshold = divineThreshold
+						arcaneThreshold = arcaneThreshold
+				STR_VAR	failArcaneRes = EVAL ~%failArcaneRes%~
+						failDivineRes = EVAL ~%failDivineRes%~
+						failTalkRes = EVAL ~%failTalkRes%~
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_IMPLEMENT_FAILURE_ABIL
+			INT_VAR abilLen = abilLen
+					abilIdx = 0
+					fxIdx = 0
+					fxNum = fxNum
+					isAbil = 0
+					abilTarget = 0
+					allowTalk = allowTalk
+					allowDivine = allowDivine
+					allowArcane = allowArcane
+					divineThreshold = divineThreshold
+					arcaneThreshold = arcaneThreshold
+			STR_VAR	failArcaneRes = EVAL ~%failArcaneRes%~
+					failDivineRes = EVAL ~%failDivineRes%~
+					failTalkRes = EVAL ~%failTalkRes%~
+		END
+	END
+END
+
+// this is when spells gain their final form
+// so this is where we log them
+// we also set casting time to 0 if not involuntary
+// always apply remove failure (on ANY poly)
+// and only re-apply if appropriate (hostile or not allowed to cast)
+DEFINE_PATCH_FUNCTION SF_IMPLEMENT_FAILURE_ABIL
+	INT_VAR abilLen = 0x28
+			abilIdx = 0
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 1
+			abilTarget = 0
+			allowTalk = 0
+			allowDivine = 0
+			allowArcane = 0
+			divineThreshold = 0
+			arcaneThreshold = 0
+	STR_VAR	failArcaneRes = ~~
+			failDivineRes = ~~
+			failTalkRes = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + (fxIdx + f) * 0x30
+		READ_BYTE (off + 0x02) target
+		READ_SHORT off opcode
+		LPF SF_POINTS_TO_VALID_POLY_WEAPON INT_VAR off = off RET ok = ok resItm = resItm resCre = resCre END
+		
+		// only apply if points to poly 
+		// or is poly and spell
+		// or is poly and item ability
+		
+		
+		
+		
+		
+		noArc = 0
+		noDiv = 0
+	
+		
+		PATCH_IF ok BEGIN
+			
+			INNER_ACTION BEGIN
+				COPY_EXISTING ~%resItm%.itm~ ~override~
+					READ_BYTE 0x1b flagByte
+					WRITE_BYTE 0x1b (flagByte BOR 0b00000001) // make undispellable
+				BUT_ONLY
+			END
+		
+		
+			INNER_PATCH_FILE ~%resCre%.cre~ BEGIN
+				READ_BYTE 0x23a intScore
+				READ_BYTE 0x23b wisScore
+			END
+			
+			
+			
+			PATCH_IF (allowArcane = 0 OR intScore < arcaneThreshold OR NOT (target = 1 OR target = 3)) BEGIN
+				noArc = 1
+			END
+			PATCH_IF (allowDivine = 0 OR wisScore < divineThreshold OR NOT (target = 1 OR target = 3)) BEGIN
+				noDiv = 1
+			END
+		END
+		
+		// 321 rem res
+		// 279 enb btn
+		// 146 cst spl
+		// 144 dsb btn
+		
+		
+		
+		/*
+		PATCH_IF GAME_IS bg2ee BEGIN
+			PATCH_IF (noDiv AND noArc) BEGIN
+				PATCH_IF isAbil BEGIN
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+					WRITE_SHORT off 144
+					WRITE_LONG (off + 0x04) 0
+					WRITE_LONG (off + 0x08) 5
+					WRITE_BYTE (off + 0x0c) 0
+					WRITE_LONG (off + 0x0e) 0
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+					WRITE_LONG (off + 0x08) 4
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+					WRITE_LONG (off + 0x08) 3
+				END ELSE BEGIN
+					LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+					WRITE_SHORT off 144
+					WRITE_LONG (off + 0x04) 0
+					WRITE_LONG (off + 0x08) 5
+					WRITE_BYTE (off + 0x0c) 0
+					WRITE_LONG (off + 0x0e) 0
+					LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+					WRITE_LONG (off + 0x08) 4
+					LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+					WRITE_LONG (off + 0x08) 3
+				END
+			END
+		END
+		*/
+		
+		PATCH_IF ok BEGIN
+			// effect points to valid poly weapon (cant be item global)
+			// if not voluntary apply failure based on creature shit
+			
+			PATCH_IF (allowTalk = 0) BEGIN
+				PATCH_IF isAbil BEGIN
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+					WRITE_SHORT off 146
+					WRITE_LONG (off + 0x04) 0
+					WRITE_LONG (off + 0x08) 1
+					WRITE_BYTE (off + 0x0c) 1
+					WRITE_LONG (off + 0x0e) 0
+					WRITE_ASCIIE (off + 0x14) ~%failTalkRes%~ #8
+				END ELSE BEGIN
+					LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+					WRITE_SHORT off 146
+					WRITE_LONG (off + 0x04) 0
+					WRITE_LONG (off + 0x08) 1
+					WRITE_BYTE (off + 0x0c) 1
+					WRITE_LONG (off + 0x0e) 0
+					WRITE_ASCIIE (off + 0x14) ~%failTalkRes%~ #8
+				END
+			END
+			
+			PATCH_IF noDiv BEGIN
+				PATCH_IF isAbil BEGIN
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+					WRITE_SHORT off 146
+					WRITE_LONG (off + 0x04) 0
+					WRITE_LONG (off + 0x08) 1
+					WRITE_BYTE (off + 0x0c) 1
+					WRITE_LONG (off + 0x0e) 0
+					WRITE_ASCIIE (off + 0x14) ~%failDivineRes%~ #8
+				END ELSE BEGIN
+					LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+					WRITE_SHORT off 146
+					WRITE_LONG (off + 0x04) 0
+					WRITE_LONG (off + 0x08) 1
+					WRITE_BYTE (off + 0x0c) 1
+					WRITE_LONG (off + 0x0e) 0
+					WRITE_ASCIIE (off + 0x14) ~%failDivineRes%~ #8
+				END
+			END
+			PATCH_IF noArc BEGIN
+				PATCH_IF isAbil BEGIN
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+					WRITE_SHORT off 146
+					WRITE_LONG (off + 0x04) 0
+					WRITE_LONG (off + 0x08) 1
+					WRITE_BYTE (off + 0x0c) 1
+					WRITE_LONG (off + 0x0e) 0
+					WRITE_ASCIIE (off + 0x14) ~%failArcaneRes%~ #8
+				END ELSE BEGIN
+					LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+					WRITE_SHORT off 146
+					WRITE_LONG (off + 0x04) 0
+					WRITE_LONG (off + 0x08) 1
+					WRITE_BYTE (off + 0x0c) 1
+					WRITE_LONG (off + 0x0e) 0
+					WRITE_ASCIIE (off + 0x14) ~%failArcaneRes%~ #8
+				END
+			END
+			
+		END
+		
+		
+		PATCH_IF (ok OR ((opcode = 135 OR opcode = 151) AND (isAbil = 1 OR abilLen = 0x28))) BEGIN
+			/*
+			PATCH_IF GAME_IS bg2ee BEGIN
+				PATCH_IF NOT (noDiv AND noArc) BEGIN
+					
+					PATCH_IF isAbil BEGIN
+						LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+						WRITE_SHORT off 279
+						WRITE_LONG (off + 0x04) 0
+						WRITE_LONG (off + 0x08) 5
+						WRITE_BYTE (off + 0x0c) 0
+						WRITE_LONG (off + 0x0e) 0
+						LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+						WRITE_LONG (off + 0x08) 4
+						LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+						WRITE_LONG (off + 0x08) 3
+					END ELSE BEGIN
+						LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+						WRITE_SHORT off 279
+						WRITE_LONG (off + 0x04) 0
+						WRITE_LONG (off + 0x08) 5
+						WRITE_BYTE (off + 0x0c) 0
+						WRITE_LONG (off + 0x0e) 0
+						LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+						WRITE_LONG (off + 0x08) 4
+						LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+						WRITE_LONG (off + 0x08) 3
+					END
+				
+				END
+			END
+			*/
+			
+			
+			
+			// this will also apply to polybacks
+			PATCH_IF isAbil BEGIN
+				
+				
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+				WRITE_SHORT off 321
+				WRITE_LONG (off + 0x04) 0
+				WRITE_LONG (off + 0x08) 0
+				WRITE_BYTE (off + 0x0c) 0
+				WRITE_LONG (off + 0x0e) 0
+				WRITE_ASCIIE (off + 0x14) ~%failTalkRes%~ #8
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+				WRITE_ASCIIE (off + 0x14) ~%failDivineRes%~ #8
+				LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f RET off = off END
+				WRITE_ASCIIE (off + 0x14) ~%failArcaneRes%~ #8
+				
+			END ELSE BEGIN
+				
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+				WRITE_SHORT off 321
+				WRITE_LONG (off + 0x04) 0
+				WRITE_LONG (off + 0x08) 0
+				WRITE_BYTE (off + 0x0c) 0
+				WRITE_LONG (off + 0x0e) 0
+				WRITE_ASCIIE (off + 0x14) ~%failTalkRes%~ #8
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+				WRITE_ASCIIE (off + 0x14) ~%failDivineRes%~ #8
+				LPF COPY_EFFECT INT_VAR abilLen = abilLen idx = f toIdx = f RET off = off END
+				WRITE_ASCIIE (off + 0x14) ~%failArcaneRes%~ #8
+				
+				
+			END
+		END
+		
+	
+		
+		
+		
+		
+		
+		
+		
+		
+	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_ADD_EFFECT_NON_ZERO
+	INT_VAR	opcode = 0
+			param1 = 0
+			param2 = 0
+	STR_VAR	res = ~~
+BEGIN
+	PATCH_IF (param1 != 0) BEGIN
+		LPF ADD_DEFAULT_EFFECT_ITM
+			INT_VAR opcode = opcode
+					param1 = param1
+					param2 = param2
+			STR_VAR	res = EVAL ~%res%~
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_FINALIZE_POLY_WEAPON 
+	STR_VAR logWeapon = ~~
+BEGIN
+	///
+	LPF SANITIZE_ITM RET ok = ok END
+	PATCH_IF ok BEGIN
+		LPF SF_CURRENT_ITM_IS_VALID_POLY_WEAPON RET ok = ok resCre = resCre END
+	END
+	PATCH_IF ok BEGIN
+		
+		INNER_PATCH_FILE ~%resCre%.cre~ BEGIN
+			READ_LONG 0x28 animID
+			READ_SSHORT 0x46 naturalAC
+			READ_SSHORT 0x48 effectiveAC
+			READ_SSHORT 0x4a crushingAC
+			READ_SSHORT 0x4c missileAC
+			READ_SSHORT 0x4e piercingAC
+			READ_SSHORT 0x50 slashingAC
+			crushingAC = 0 - crushingAC
+			missileAC = 0 - missileAC
+			piercingAC = 0 - piercingAC
+			slashingAC = 0 - slashingAC
+			READ_SBYTE 0x52 thac0
+			READ_BYTE 0x53 aprKey
+			READ_SBYTE 0x59 resFire
+			READ_SBYTE 0x5a resCold
+			READ_SBYTE 0x5b resElec
+			READ_SBYTE 0x5c resAcid
+			READ_SBYTE 0x5d resMagic
+			READ_SBYTE 0x5e resMagFire
+			READ_SBYTE 0x5f resMagCold
+			READ_SBYTE 0x60 resSlashing
+			READ_SBYTE 0x61 resCrushing
+			READ_SBYTE 0x62 resPiercing
+			READ_SBYTE 0x63 resMissile
+			READ_BYTE 0x238 strScore
+			READ_BYTE 0x239 strExScore
+			READ_BYTE 0x23a intScore
+			READ_BYTE 0x23b wisScore
+			READ_BYTE 0x23c dexScore
+			READ_BYTE 0x23d conScore
+			
+			READ_LONG 0x2b8 slotsOff
+			READ_LONG 0x2bc itmOff
+			READ_LONG 0x2c0 itmNum
+			READ_LONG 0x2c4 fxOff
+			READ_LONG 0x2c8 fxNum
+		END
+		
+		// base stats
+		
+		PATCH_IF (effectiveAC < naturalAC) BEGIN
+			naturalAC = effectiveAC
+		END
+		LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 44 param1 = strScore param2 = 1 END
+		LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 97 param1 = strExScore param2 = 1 END
+		LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 15 param1 = dexScore param2 = 1 END
+	//	LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 10 param1 = conScore param2 = 1 END
+		LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 1 param1 = aprKey param2 = 1 END
+		LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 54 param1 = thac0 param2 = 1 END
+		
+		LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 0 param1 = naturalAC param2 = 0x10 END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 0 param1 = slashingAC crushingAC = 1 END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 0 param1 = slashingAC missileAC = 2 END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 0 param1 = slashingAC piercingAC = 4 END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 0 param1 = slashingAC param2 = 8 END
+		
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 30 param1 = resFire END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 28 param1 = resCold END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 29 param1 = resElec END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 27 param1 = resAcid END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 166 param1 = resMagic END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 84 param1 = resMagFire END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 85 param1 = resMagCold END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 86 param1 = resSlashing END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 87 param1 = resCrushing END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 88 param1 = resPiercing END
+		LPF SF_ADD_EFFECT_NON_ZERO INT_VAR opcode = 89 param1 = resMissile END
+		
+		FOR (f = 0; f < fxNum; ++f) BEGIN
+			off = fxOff + f * 0x108
+			INNER_PATCH_FILE ~%resCre%.cre~ BEGIN
+				LPF READ_EFFECT_CRE
+					INT_VAR	off = off
+					RET		opcode = opcode
+							target = target
+							power = power
+							param1 = param1
+							param2 = param2
+							timing = timing
+							resist = resist
+							delay = delay
+							prob1 = prob1
+							prob2 = prob2
+							res	 = res
+							dNum = dNum
+							dSize = dSize
+							sType = sType
+							sBonus = sBonus
+							special = special
+				END
+			END
+			
+			LPF ADD_EFFECT_ITM RET off = off END
+			LPF WRITE_EFFECT
+				INT_VAR off = off
+						opcode = opcode
+						target = target
+						power = power
+						param1 = param1
+						param2 = param2
+						timing = 2 // timing
+						resist = 0 // resist
+						delay = 0 // delay
+						prob1 = prob1
+						prob2 = prob2
+						dNum = dNum
+						dSize = dSize
+						sType = 0 // sType
+						sBonus = 0 // sBonus
+						special = 0 // special
+				STR_VAR	res = EVAL ~%res%~
+			END
+		END
+		
+		PATCH_FOR_EACH slot IN
+			~0~		//Helmet
+			~1~		//Armor
+		//	~2~		//Shield
+			~3~		//Gloves
+			~4~		//L.Ring
+			~5~		//R.Ring
+			~6~		//Amulet
+			~7~		//Belt
+			~8~		//Boots
+			~17~	//Cloak
+		BEGIN
+			INNER_PATCH_FILE ~%resCre%.cre~ BEGIN
+				LPF GET_INVENTORY_SLOT_ITEM INT_VAR slot = EVAL ~%slot%~ RET resItm = res END
+			END
+			LPF SANITIZE_ITM_IF_EXISTS STR_VAR res = EVAL ~%resItm%~ RET ok = ok END
+			PATCH_IF ok BEGIN
+				PATCH_PRINT ~copying effects from %resItm%.itm to %SOURCE_FILE%~
+				INNER_PATCH_FILE ~%resItm%.itm~ BEGIN
+					READ_LONG 0x6a ifxOff
+					READ_SHORT 0x70 ifxNum
+				END
+				FOR (f = 0; f < ifxNum; ++f) BEGIN
+					off = ifxOff + f * 0x30
+					INNER_PATCH_FILE ~%resItm%.itm~ BEGIN
+						LPF READ_EFFECT
+							INT_VAR	off = off
+							RET		opcode = opcode
+									target = target
+									power = power
+									param1 = param1
+									param2 = param2
+									timing = timing
+									resist = resist
+									delay = delay
+									prob1 = prob1
+									prob2 = prob2
+									res	 = res
+									dNum = dNum
+									dSize = dSize
+									sType = sType
+									sBonus = sBonus
+									special = special
+						END
+					END
+					LPF ADD_EFFECT_ITM RET off = off END
+					LPF WRITE_EFFECT
+						INT_VAR off = off
+								opcode = opcode
+								target = target
+								power = power
+								param1 = param1
+								param2 = param2
+								timing = timing
+								resist = resist
+								delay = delay
+								prob1 = prob1
+								prob2 = prob2
+								dNum = dNum
+								dSize = dSize
+								sType = sType
+								sBonus = sBonus
+								special = special
+						STR_VAR	res = EVAL ~%res%~
+					END
+				END
+			END
+		END
+		
+		LPF SF_CLEAN_UP_EFFECTS END
+		
+		LPF SF_COALESCE_EFFECTS END
+		LPF PI_IMPLEMENT_POISON_IMMUNITY_ITM END
+		LPF ADD_DEFAULT_EFFECT_ITM INT_VAR opcode = 53 param1 = animID END
+		
+		LPF SF_KEEP_SINGLE_POLYBACK END
+		
+		LPF UPDATE_LOG STR_VAR file = EVAL ~%logWeapon%~ value = EVAL ~%SOURCE_RES%~ END
+		
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_KEEP_SINGLE_POLYBACK BEGIN
+	
+END
+
+DEFINE_PATCH_FUNCTION SF_CLEAN_UP_EFFECTS BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + f * 0x30
+		LPF READ_EFFECT INT_VAR off = off RET opcode = opcode param1 = param1 param2 = param2 res = res END
+		PATCH_MATCH opcode WITH
+			0
+			BEGIN	// AC mod must have correct param2
+				PATCH_IF NOT (param2 = 0 OR param2 = 1 OR param2 = 2 OR param2 = 4 OR param2 = 8 OR param2 = 16) BEGIN
+					LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+				END
+			END
+			1
+			BEGIN	// APR mod, param2 must be < 3, if 3 rewrite to 1
+				PATCH_IF (param2 > 3) BEGIN
+					LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+				END ELSE BEGIN
+					PATCH_IF (param2 = 3) BEGIN
+						WRITE_LONG (off + 0x08) 1
+					END
+				END
+			END
+			6 10 15 19 21 22 27 28 29 30 31 33 34 35 36 37 44 49 54 58 59 73 84 85 86 87 88 89 90 91 92 93 94 95 96 97 104 105 106 108 115 126 167 263 275 276 277 278 281 284 285 286 288 289 305 306
+			BEGIN	// param2 must be 0, 1 or 2
+				PATCH_IF (param2 > 2) BEGIN
+					LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+				END
+			END
+			16 53 60 103 111 112 135 138 143 144 145 151 271 279 315 317 321
+			BEGIN	// always remove (includes haste)
+				LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+			END
+			20 71 107 166 262
+			BEGIN	// param2 must be 0 or 1
+				PATCH_IF (param2 > 1) BEGIN
+					LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+				END
+			END
+			176
+			BEGIN	// replace with normal movement rate mod
+				WRITE_SHORT off 126
+			END
+			188
+			BEGIN	// force correct aura cleansing
+				WRITE_LONG (off + 0x08) 1
+			END
+			193 280
+			BEGIN	// param2 must be 1 or 2
+				PATCH_IF NOT (param2 = 1 OR param2 = 2) BEGIN
+					LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+				END
+			END
+			194 291 292 295 300 302 303 310
+			BEGIN	// param2 must be 1
+				PATCH_IF NOT (param2 = 1) BEGIN
+					LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+				END
+			END
+			247 297
+			BEGIN	// param2 must not be 0
+				PATCH_IF (param2 = 0) BEGIN
+					LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+				END
+			END
+			314
+			BEGIN	// replace with normal stoneskin
+				WRITE_SHORT off 218
+			END
+			DEFAULT
+				//
+		END
+	END
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + f * 0x30
+		LPF READ_EFFECT
+			INT_VAR off = off
+			RET		opcode = opcode
+					target = target
+					timing = timing
+					delay = delay
+					prob1 = prob1
+					prob2 = prob2
+		END
+		PATCH_IF ((NOT ((prob1 = 100) AND (prob2 = 0)))				// wrong probabilities
+				OR (target > 2)										// wrong target
+				OR (timing > 9)										// unknown timing
+				OR ((NOT (timing = 1 OR timing = 2 OR timing = 9))	// not immediately valid timing
+					AND ((timing = 0 OR timing = 3 OR timing = 6)	// either limited duration
+						OR (NOT (delay = 0))))						// or non-zero delay
+		) BEGIN			// wrong parameters
+			LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+		END ELSE BEGIN	// standardize parameters
+			WRITE_BYTE (off + 0x02) 1	// target self
+			WRITE_BYTE (off + 0x03) 0	// zero power
+			WRITE_BYTE (off + 0x0c) 2	// while equipped
+			WRITE_BYTE (off + 0x0d) 0	// no resistance
+			WRITE_LONG (off + 0x0e) 0	// no duration
+			WRITE_LONG (off + 0x24) 0	// no save
+			WRITE_LONG (off + 0x28) 0	// no save bonus
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_COALESCE_EFFECTS BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + f * 0x30
+		LPF READ_EFFECT INT_VAR off = off RET opcode = opcode param1 = param1 param2 = param2 res = res END
+		PATCH_MATCH ~%opcode%~ WITH
+			0
+			BEGIN	// AC
+				PATCH_IF (param2 = 0x10) BEGIN	// base AC
+					FOR (g = f - 1; g >= 0; --g) BEGIN
+						off = fxOff + g * 0x30
+						READ_SHORT off opcodeB
+						READ_SLONG (off + 0x04) param1B
+						READ_SLONG (off + 0x08) param2B
+						PATCH_IF (opcodeB = 0 AND param2B = 0x10) BEGIN
+							PATCH_IF (param1B < param1) BEGIN
+								param1 = param1B
+							END
+							LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+							--f
+						END
+					END
+					WRITE_LONG (fxOff + f * 0x30 + 0x04) param1	// keep lowest base AC
+				END ELSE BEGIN
+					FOR (g = f - 1; g >= 0; --g) BEGIN
+						off = fxOff + g * 0x30
+						READ_SHORT off opcodeB
+						READ_SLONG (off + 0x04) param1B
+						READ_SLONG (off + 0x08) param2B
+						PATCH_IF (opcodeB = 0 AND param2B = param2) BEGIN
+							param1 += param1B
+							LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+							--f
+						END
+					END
+					WRITE_LONG (fxOff + f * 0x30 + 0x04) param1	// keep signed sum if non-zero
+					PATCH_IF (param1 = 0) BEGIN
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+						--f
+					END
+				END
+			END
+			2 3 4 11 14 24 26 32 38 39 40 43 45 46 47 48 57 63 64 65 69 70 74 75 76 77 79 80 81 107 116 117 119 124 125 128 134 136 150 153 154 155 156 157 158 160 161 162 163 164 165 188 193 194 196 209 210 211 212 217 224 225 231 242 245 246 247 268 270 273 274 287 292 295 297 300 302 303 304 310 316
+			BEGIN	// keep only current instance
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					PATCH_IF (opcodeB = opcode) BEGIN
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END	// remove older instance
+						--f
+					END
+				END
+			END
+			7 8 9 51 52 78 83 101 142 169 197 198 202 203 204 205 233 240 282
+			BEGIN
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					READ_SLONG (off + 0x08) param2B
+					PATCH_IF (opcodeB = opcode AND param2B = param2) BEGIN
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END	// remove older instance
+						--f
+					END
+				END
+			END
+			20
+			BEGIN	// keep most significant invisibility (priority is 1 > 0 > 2)
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					READ_SLONG (off + 0x08) param2B
+					PATCH_IF (opcodeB = opcode) BEGIN
+						PATCH_IF ((NOT (param2 = 1)) AND (NOT (param2B = 2))) BEGIN
+							param2 = param2B
+						END
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END	// remove older instance
+						--f
+					END
+				END
+				WRITE_LONG (fxOff + f * 0x30 + 0x08) param2	// update to most significant found
+			END
+			98
+			BEGIN	// regeneration
+				PATCH_IF (param2 = 0 OR param2 = 2) BEGIN
+					FOR (g = f - 1; g >= 0; --g) BEGIN
+						off = fxOff + g * 0x30
+						READ_SHORT off opcodeB
+						READ_LONG (off + 0x04) param1B
+						READ_LONG (off + 0x08) param2B
+						PATCH_IF (opcodeB = 98 AND param2B = param2) BEGIN
+							param1 = param1 + param1B
+							LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+							--f
+						END
+					END
+					WRITE_LONG (fxOff + f * 0x30 + 0x04) param1
+				END
+				PATCH_IF (param2 = 1) BEGIN
+					FOR (g = f - 1; g >= 0; --g) BEGIN
+						off = fxOff + g * 0x30
+						READ_SHORT off opcodeB
+						READ_LONG (off + 0x04) param1B
+						READ_LONG (off + 0x08) param2B
+						PATCH_IF (opcodeB = 98 AND param2B = 1) BEGIN
+							param1 = param1 + param1B
+							LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+							--f
+						END
+					END
+					PATCH_IF (param1 > 100) BEGIN
+						param1 = 100	// cap to 100%
+					END
+					WRITE_LONG (fxOff + f * 0x30 + 0x04) param1
+				END
+				PATCH_IF (param2 = 3) BEGIN
+					PATCH_IF NOT (param1 = 0) BEGIN
+						param1 = 65536 / param1
+					END
+					FOR (g = f - 1; g >= 0; --g) BEGIN
+						off = fxOff + g * 0x30
+						READ_SHORT off opcodeB
+						READ_LONG (off + 0x04) param1B
+						READ_LONG (off + 0x08) param2B
+						PATCH_IF (opcodeB = 98 AND param2B = 3) BEGIN
+							PATCH_IF NOT (param1B = 0) BEGIN
+								param1 = param1 + 65536 / param1B
+							END
+							LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+							--f
+						END
+					END
+					PATCH_IF NOT (param1 = 0) BEGIN
+						param1 = 65536 / param1
+					END
+					PATCH_IF (param1 < 1) BEGIN
+						param1 = 1	// it cannot take less than 1 second to gain 1 hp
+					END
+					WRITE_LONG (fxOff + f * 0x30 + 0x04) param1
+				END
+				// no idea how to deal with regen type 4
+			END
+			100 109 120 175 185
+			BEGIN	// keep latest of each parameter1 AND parameter2
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					READ_SLONG (off + 0x04) param1B
+					READ_SLONG (off + 0x08) param2B
+					PATCH_IF (opcodeB = opcode AND param1B = param1 AND param2B = param2) BEGIN
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+						--f
+					END
+				END
+			END
+			102 199 267
+			BEGIN	// keep latest of each parameter1
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					READ_SLONG (off + 0x04) param1B
+					PATCH_IF (opcodeB = opcode AND param1B = param1) BEGIN
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+						--f
+					END
+				END
+			END
+			129 130 218 301
+			BEGIN	// keep sum of all parameter1
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					READ_SLONG (off + 0x04) param1B
+					PATCH_IF (opcodeB = opcode) BEGIN
+						param1 += param1B
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+						--f
+					END
+				END
+				WRITE_LONG (fxOff + f * 0x30 + 0x04) param1
+			END
+			131 137 173
+			BEGIN	// chants/poison res. keep bounded signed sum of all parameter1
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					READ_SLONG (off + 0x04) param1B
+					PATCH_IF (opcodeB = opcode) BEGIN
+						param1 += param1B
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+						--f
+					END
+				END
+				PATCH_IF (opcode = 173) BEGIN
+					PATCH_IF (param1 > 0) BEGIN
+						param1 = 100
+					END
+				END ELSE BEGIN
+					PATCH_IF (param1 < (0 - 6)) BEGIN
+						param1 = 0 - 6
+					END
+					PATCH_IF (param1 > 5) BEGIN
+						param1 = 5
+					END
+				END
+				WRITE_LONG (fxOff + f * 0x30 + 0x04) param1
+			END
+			191 200 201 223 226 227 228 259
+			BEGIN	// keep sum of all parameter1 for each parameter2
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					READ_SLONG (off + 0x04) param1B
+					READ_SLONG (off + 0x08) param2B
+					PATCH_IF (opcodeB = opcode AND param2B = param2) BEGIN
+						param1 += param1B
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+						--f
+					END
+				END
+				WRITE_LONG (fxOff + f * 0x30 + 0x04) param1
+			END
+			206 207 215 248 249 266 291 296
+			BEGIN	// keep latest of each resource key
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcodeB
+					READ_ASCII (off + 0x14) resB (8) NULL
+					PATCH_IF (opcodeB = opcode AND (~%resB%~ STRING_EQUAL_CASE ~%res%~)) BEGIN
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+						--f
+					END
+				END
+			END
+			DEFAULT
+				//
+		END
+	END
+	
+	PATCH_FOR_EACH op IN
+		~6~ ~10~ ~15~ ~19~ ~21~ ~22~ ~27~ ~28~ ~29~ ~30~ ~31~ ~33~ ~34~ ~35~ ~36~ ~37~ ~44~ ~49~ 
+		~54~ ~59~ ~73~ ~84~ ~85~ ~86~ ~87~ ~88~ ~89~ ~90~ ~91~ ~92~ ~93~ ~94~ ~95~ ~96~ ~106~ ~108~ 
+		~97~ ~166~ ~167~ ~275~ ~276~ ~277~ ~278~ ~281~ ~284~ ~285~ ~286~ ~288~ ~289~ ~305~ ~306~
+	BEGIN
+		LPF SF_COMBINE_CUMULATIVE_MODIFIER INT_VAR opcode = EVAL ~%op%~ resetOnFlat = 0 END
+	END
+	
+	PATCH_FOR_EACH op IN
+		~126~ ~176~ ~263~
+	BEGIN
+		LPF SF_COMBINE_CUMULATIVE_MODIFIER INT_VAR opcode = EVAL ~%op%~ resetOnFlat = 1 END
+	END
+	
+	// re-calculate APR
+	// if result = 1
+	// remove it
+	// else implement as cumulative
+	
+	
+	base = 2	// standard 2 attacks per round
+	cumu = 0	// +0 attacks per round
+	perc = 100	// at 100 %
+	
+	// we take the highest base num
+	// + all cumulatives
+	// * percent
+	
+	
+	
+	READ_SHORT 0x70 fxNum
+	FOR (f = 0; f < fxNum; ++f) BEGIN
+		off = fxOff + f * 0x30
+		READ_SHORT off opcode
+		PATCH_IF (opcode = 1) BEGIN
+			READ_LONG (off + 0x04) param1
+			READ_LONG (off + 0x08) param2
+			PATCH_IF (param2 = 0) BEGIN
+				LPF GET_APR_NUM_FOR_KEY INT_VAR key = param1 RET num = value END
+				cumu += num
+			END
+			PATCH_IF (param2 = 1) BEGIN
+				LPF GET_APR_NUM_FOR_KEY INT_VAR key = param1 RET num = value END
+				PATCH_IF (num > base) BEGIN
+					base = num
+				END
+			END
+			PATCH_IF (param2 = 2) BEGIN
+				perc = (perc * param1) / 100
+			END
+		END
+	END
+	num = (((base + cumu) * perc) / 100) - 2	// minus 1 base attack per round
+	PATCH_IF (num < 1) BEGIN
+		FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+			off = fxOff + f * 0x30
+			READ_SHORT off opcode
+			PATCH_IF (opcode = 1) BEGIN
+				LPF REMOVE_EFFECT_ITM INT_VAR idx = f END
+			END
+		END
+	END ELSE BEGIN
+		// add cumulative APR mod
+		// then remove all others
+		LPF GET_APR_KEY_FOR_NUM INT_VAR num = num RET key = value END
+		FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+			off = fxOff + f * 0x30
+			READ_SHORT off opcode
+			PATCH_IF (opcode = 1) BEGIN
+				WRITE_LONG (off + 0x04) key	// put new key
+				WRITE_LONG (off + 0x08) 0		// force cumulative
+				FOR (g = f - 1; g >= 0; --g) BEGIN
+					off = fxOff + g * 0x30
+					READ_SHORT off opcode
+					PATCH_IF (opcode = 1) BEGIN
+						LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+					END
+				END
+				f = 0	// terminate loop
+			END
+		END
+	END
+END
+
+
+DEFINE_PATCH_FUNCTION SF_COMBINE_CUMULATIVE_MODIFIER
+	INT_VAR opcode = 0
+			resetOnFlat = 0
+BEGIN
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + f * 0x30
+		READ_SHORT off opcodeB
+		PATCH_IF (opcodeB = opcode) BEGIN
+			base = 0
+			cumu = 0
+			perc = 100
+			hasFlat = 0
+			FOR (g = 0; g <= f; ++g) BEGIN		// includes f
+				off = fxOff + g * 0x30
+				READ_SHORT off opcodeB
+				READ_SLONG (off + 0x04) param1
+				READ_LONG (off + 0x08) param2
+				PATCH_IF (opcodeB = opcode) BEGIN
+					PATCH_IF (param2 = 0) BEGIN
+						cumu += param1
+					END
+					PATCH_IF (param2 = 1) BEGIN
+						hasFlat = 1
+						base = param1
+						PATCH_IF resetOnFlat BEGIN
+							cumu = 0
+							perc = 100
+						END
+					END
+					PATCH_IF (param2 = 2) BEGIN
+						perc = (perc * param1) / 100
+					END
+				END
+			END
+			WRITE_LONG (off + 0x04) (((base + cumu) * perc) / 100)
+			PATCH_IF hasFlat BEGIN
+				WRITE_LONG (off + 0x08) 1		// force flat
+			END ELSE BEGIN
+				WRITE_LONG (off + 0x08) 0		// force cumulative
+			END
+			FOR (g = f - 1; g >= 0; --g) BEGIN
+				off = fxOff + g * 0x30
+				READ_SHORT off opcodeB
+				PATCH_IF (opcodeB = opcode) BEGIN
+					LPF REMOVE_EFFECT_ITM INT_VAR idx = g END
+				END
+			END
+			f = 0	// terminate loop
+		END
+	END
+END
+
+
+
+DEFINE_PATCH_FUNCTION SF_COMPLEMENT_IMMUNITY
+	INT_VAR logLen = 0
+			abilLen = 0x28
+	STR_VAR logSpells = ~~
+BEGIN
+	LPF SANITIZE_ITM_OR_SPL INT_VAR abilLen = abilLen RET ok = ok END
+	PATCH_IF ok BEGIN
+		READ_LONG 0x64 abilOff
+		READ_SHORT 0x68 abilNum
+		FOR (a = 0; a < abilNum; ++a) BEGIN
+			off = abilOff + a * abilLen
+			READ_BYTE (off + 0x0c) abilTarget
+			READ_SHORT (off + 0x1e) afxNum
+			READ_SHORT (off + 0x20) afxIdx
+			LPF SF_COMPLEMENT_IMMUNITY_ABIL
+				INT_VAR logLen = logLen
+						abilLen = abilLen
+						abilIdx = a
+						fxIdx = afxIdx
+						fxNum = afxNum
+						isAbil = 1
+				STR_VAR	logSpells = EVAL ~%logSpells%~
+			END
+		END
+		READ_SHORT 0x70 fxNum
+		LPF SF_COMPLEMENT_IMMUNITY_ABIL
+			INT_VAR logLen = logLen
+					abilLen = abilLen
+					abilIdx = 0
+					fxIdx = 0
+					fxNum = fxNum
+					isAbil = 0
+			STR_VAR	logSpells = EVAL ~%logSpells%~
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_COMPLEMENT_IMMUNITY_ABIL
+	INT_VAR logLen = 0
+			abilLen = 0x28
+			abilIdx = 0
+			fxIdx = 0
+			fxNum = 0
+			isAbil = 0
+	STR_VAR	logSpells = ~~
+BEGIN
+	READ_LONG 0x6a fxOff
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + (fxIdx + f) * 0x30
+		READ_SHORT off opcode
+		READ_LONG (off + 0x08) param2
+		PATCH_IF (opcode = 101 AND (param2 = 135 OR param2 = 151)) BEGIN 
+			PATCH_IF isAbil BEGIN
+				FOR (i = 0; i < logLen; i += 8) BEGIN
+					LPF READ_LOG INT_VAR off = i STR_VAR file = EVAL ~%logSpells%~ RET entry = value END
+					LPF COPY_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f + 1 RET off = off END
+					WRITE_SHORT off 206
+					WRITE_LONG (off + 0x04) 0xffffffff
+					WRITE_LONG (off + 0x08) 0
+					WRITE_ASCIIE (off + 0x14) ~%entry%~ #8
+				END
+			END ELSE BEGIN
+				FOR (i = 0; i < logLen; i += 8) BEGIN
+					LPF READ_LOG INT_VAR off = i STR_VAR file = EVAL ~%logSpells%~ RET entry = value END
+					LPF COPY_EFFECT INT_VAR abilLen = abilLen abilIdx = abilIdx idx = f toIdx = f + 1 RET off = off END
+					WRITE_SHORT off 206
+					WRITE_LONG (off + 0x04) 0xffffffff
+					WRITE_LONG (off + 0x08) 0
+					WRITE_ASCIIE (off + 0x14) ~%entry%~ #8
+				END
+			END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_COMPLEMENT_IMMUNITY_CRE
+	INT_VAR	logLen = 0
+	STR_VAR logSpells = ~~
+BEGIN
+	//logSpells = EVAL ~%logSpells%~
+	READ_LONG 0x2c4 fxOff
+	READ_LONG 0x2c8 fxNum
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + f * 0x108
+		READ_LONG (off + 0x08) opcode
+		READ_LONG (off + 0x18) param2
+		PATCH_IF (opcode = 101 AND (param2 = 135 OR param2 = 151)) BEGIN 
+			FOR (i = 0; i < logLen; i += 8) BEGIN
+				LPF READ_LOG INT_VAR off = i STR_VAR file = EVAL ~%logSpells%~ RET entry = value END
+				LPF COPY_EFFECT_CRE INT_VAR idx = f toIdx = f + 1 RET off = off END
+				WRITE_LONG (off + 0x08) 206
+				WRITE_LONG (off + 0x14) 0xffffffff
+				WRITE_LONG (off + 0x18) 0
+				WRITE_ASCIIE (off + 0x28) ~%entry%~ #8
+			END
+		END
+	END
+END
+
+
+DEFINE_PATCH_FUNCTION SF_ALL_EFFECTS_CORRESPOND
+	INT_VAR fxIdx = 0
+			fxNum = 0
+	RET		ok
+BEGIN
+	ok = 1	// if only one effect
+	FOR (f = 1; f < fxNum; ++f) BEGIN
+		LPF SF_EFFECTS_CORRESPOND 
+			INT_VAR idxA = fxIdx idxB = fxIdx + f
+			RET ok = ok
+		END
+		PATCH_IF NOT ok BEGIN
+			f = fxNum	// stop when one does not match
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_POINTS_TO_VALID_POLY_WEAPON
+	INT_VAR off = 0
+	RET		ok
+			resItm
+			resCre
+BEGIN
+	ok = 0
+	TEXT_SPRINT resCre ~~
+	LPF READ_EFFECT INT_VAR off = off RET opcode = opcode resItm = res END
+	PATCH_IF (opcode = 111) BEGIN
+		LPF SANITIZE_ITM_IF_EXISTS STR_VAR res = EVAL ~%resItm%~ RET ok = ok END
+		PATCH_IF ok BEGIN
+			LPF SF_ITM_IS_VALID_POLY_WEAPON STR_VAR resItm = EVAL ~%resItm%~ RET ok = ok resCre = resCre END
+		END
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_ITM_IS_VALID_POLY_WEAPON
+	STR_VAR resItm = ~~
+	RET		ok
+			resCre
+BEGIN
+	INNER_ACTION BEGIN
+		COPY_EXISTING ~%resItm%.itm~ ~override~
+			LPF SF_CURRENT_ITM_IS_VALID_POLY_WEAPON RET ok = ok resCre = resCre END
+		BUT_ONLY
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_CURRENT_ITM_IS_VALID_POLY_WEAPON
+	RET		ok
+			resCre
+BEGIN
+	ok = 0
+	TEXT_SPRINT resCre ~~
+	READ_LONG 0x6a fxOff
+	READ_SHORT 0x70 fxNum
+	FOR (f = fxNum - 1; f >= 0; --f) BEGIN
+		off = fxOff + f * 0x30
+		READ_SHORT off opcode
+		PATCH_IF (opcode = 135 OR opcode = 151) BEGIN
+			READ_ASCII (off + 0x14) resCre (8) NULL
+			LPF SANITIZE_CRE_IF_EXISTS STR_VAR res = EVAL ~%resCre%~ RET ok = ok END
+			PATCH_IF ok BEGIN
+				f = 0
+			END
+		END		
+	END
+END
+
+DEFINE_PATCH_FUNCTION SF_EFFECTS_CORRESPOND
+	INT_VAR idxA = 0
+			idxB = 0
+	RET		ok
+			offA			offB
+			isInstantA		isInstantB
+			isPermanentA	isPermanentB
+			opcodeA			opcodeB
+			targetA			targetB
+			powerA			powerB
+			param1A			param1B
+			param2A			param2B
+			timingA			timingB
+			resistA			resistB
+			delayA			delayB
+			prob1A			prob1B
+			prob2A			prob2B
+			resA			resB
+			dNumA			dNumB
+			dSizeA			dSizeB
+			sTypeA			sTypeB
+			sBonusA			sBonusB
+			specialA		specialB
+BEGIN
+	ok = 0
+	isInstantA = 0
+	isInstantB = 0
+	isPermanentA = 0
+	isPermanentB = 0
+	
+	READ_LONG 0x6a fxOff
+	
+	offA = fxOff + idxA * 0x30
+	offB = fxOff + idxB * 0x30
+	
+	LPF READ_EFFECT INT_VAR off = offA
+		RET		opcodeA = opcode
+				targetA = target
+				powerA = power
+				param1A = param1
+				param2A = param2
+				timingA = timing
+				resistA = resist
+				delayA = delay
+				prob1A = prob1
+				prob2A = prob2
+				resA = res
+				dNumA = dNum
+				dSizeA = dSize
+				sTypeA = sType
+				sBonusA = sBonus
+				specialA = special
+	END
+	LPF READ_EFFECT INT_VAR off = offB
+		RET		opcodeB = opcode
+				targetB = target
+				powerB = power
+				param1B = param1
+				param2B = param2
+				timingB = timing
+				resistB = resist
+				delayB = delay
+				prob1B = prob1
+				prob2B = prob2
+				resB = res
+				dNumB = dNum
+				dSizeB = dSize
+				sTypeB = sType
+				sBonusB = sBonus
+				specialB = special
+	END
+	PATCH_IF (timingA < 3 OR timingA > 8 OR delayA = 0) BEGIN
+		isInstantA = 1
+	END
+	PATCH_IF (timingB < 3 OR timingB > 8 OR delayB = 0) BEGIN
+		isInstantB = 1
+	END
+	PATCH_IF (timingA = 1 OR timingA = 2 OR timingA = 4 OR timingA = 5 OR timingA = 7 OR timingA = 8 OR timingA = 9 OR (isInstantA AND delayA > 299999)) BEGIN
+		isPermanentA = 1
+	END
+	PATCH_IF (timingB = 1 OR timingB = 2 OR timingB = 4 OR timingB = 5 OR timingB = 7 OR timingB = 8 OR timingB = 9 OR (isInstantB AND delayB > 299999)) BEGIN
+		isPermanentB = 1
+	END
+	PATCH_IF ((targetA = targetB AND prob1A = prob1B AND prob2A = prob2B AND sTypeA = sTypeB AND sBonusA = sBonusB)
+		/*
+		AND (
+			(timingA = timingB) OR
+			(isInstantA = 1 AND isInstantB = 1) OR
+			(isInstantA = 0 AND isInstantB = 0 AND (
+					(delayA = delayB) OR		//
+					(delayA = delayB + 1) OR	//
+					(delayA + 1 = delayB)		// 
+				)
+			)
+		)
+		*/
+		) BEGIN
+		ok = 1
+		// all same target and chance
+		// either same timing, both instant or same delay if delayed
+	END
+END
+
+
+
+
+
+
+
+
+
+

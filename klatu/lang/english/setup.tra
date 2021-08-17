@@ -1,0 +1,423 @@
+@0 = ~The Gloves of Goodman Hayes~
+@1 = ~Content Changes~
+@2 = ~Incompatible Game~
+@3 = ~Required file missing~
+@4 = ~Namespace occupied~
+@5 = ~Gloves~
+@6 = ~Gloves of Goodman Hayes~
+@7 = ~These extravagant gloves were fashioned out of the Robe of Goodman Hayes. As it turns out Goodman Hayes was not so good after all, considering he sold his charges, colleagues and even his own wife Telana to the Red Wizards of Thay to be subjected to slavery and torture. The robe was an unusual but powerful artifact, providing its wearer additional control over the effects of wild magic. 
+
+<CHARNAME> comissioned these gloves from the prodigious Cromwell, who managed to reshape the robes into the form they are in now, without sacrificing their magic.
+
+STATISTICS: 
+
+Equipped abilities: 
+– Bonus to wild surge rolls on wearer
+
+Weight: 1~
+@8 = ~Prepared Wishes~
+@9 = ~Random Wish~
+@10 = ~Wish: Raise Characteristics~
+@11 = ~Wish: Raise Characteristics
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 8
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to raise all party members' characteristics up to 25 for 4 rounds.~
+@12 = ~Wish: Raise Dead~
+@13 = ~Wish: Raise Dead
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 9
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to raise all dead party members from the dead.~
+@14 = ~Wish: Greater Deathblow~
+@15 = ~Wish: Greater Deathblow
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 7
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt grant all party members the Greater Deathblow ability.~
+@16 = ~Wish: Hardiness~
+@17 = ~Wish: Hardiness
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 7
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt grant all party members the Hardiness ability.~
+@18 = ~Wish: Alchemy~
+@19 = ~Wish: Alchemy
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 7
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt create a random potion in the caster's inventory.~
+@20 = ~Wish: Create Wand~
+@21 = ~Wish: Create Wand
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 7
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt create a random wand in the caster's inventory.~
+@22 = ~Wish: Rest~
+@23 = ~Wish: Rest
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 12
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to instantaneously bring about the effects of a full night's rest for the caster and <PRO_HISHER> party, recharging their abilities and rememorizing their spells.~
+@24 = ~Wish: Alacritous Time Stop~
+@25 = ~Wish: Alacritous Time Stop
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 12
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to cast a double-length Time Stop and Improved Alacrity on the caster.~
+@26 = ~Wish: Wing Buffet~
+@27 = ~Wish: Wing Buffet
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 6
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to blow all people, including party members, away from the caster.~
+@28 = ~Wish: Heal~
+@29 = ~Wish: Heal
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 9
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to heal everyone, party members and enemies included.~
+@30 = ~Wish: Miscast Magic~
+@31 = ~Wish: Miscast Magic
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 6
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to incur spell failure on everyone in the area.~
+@32 = ~Wish: Magic Resistance~
+@33 = ~Wish: Magic Resistance
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 6
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to incur magic resistance on everyone in the area.~
+@34 = ~Wish: Horrid Wilting~
+@35 = ~Wish: Horrid Wilting
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 12
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to cast Abi-Dalzim's horrid wilting on everyone in the area.~
+@36 = ~Wish: Silence~
+@37 = ~Wish: Silence
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 6
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to silence everyone in the area.~
+@38 = ~Wish: Improved Haste~
+@39 = ~Wish: Improved Haste
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 9
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to cast Improved Haste on the caster's party.~
+@40 = ~Wish: Breach~
+@41 = ~Wish: Breach
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 8
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to cast Breach on all enemies.~
+@42 = ~Wish: Restoration~
+@43 = ~Wish: Restoration
+(Conjuration/Summoning, Invocation/Evocation)
+
+Level: 9
+Range: Unlimited
+Duration: Special
+Casting Time: 9
+Area of Effect: Special
+Saving Throw: Special
+
+This is a special version of the powerful Wish spell. It allows the caster to communicate a prepared wish contract to the Djinni with whom the contract was made, across the planes. The Djinni's presence is no longer required for the wish to take effect. However, properly communicating the contract can prove difficult for inexperienced wizards. Whenever a mistake is made, the results of the wish are at least partly up to the Djinni's whims. 
+
+This particular wish will attempt to cast Restoration on the caster's party.~
+@44 = ~No Item Deprecation~
+@45 = ~Gameplay Tweaks and Fixes~
+@46 = ~Fix Wild Mage Items and Spells~
+@47 = ~Prevent Wish Spells from Interrupting Caster~
+@48 = ~Drop Equipment on Disintegration~
+@49 = ~No unique resource names could be generated.~
+@50 = ~Drop Equipment on Petrification~
+@51 = ~Drop Equipment on Imprisonment~
+@52 = ~Standardize Shapeshifting~
+@53 = ~Allow polymorphed players to initiate dialgoue? (enter 1 or 2)
+1) Polymorphed players can initiate dialgoue with NPCs. (default)
+2) Polymorphed players CANNOT initiate dialgoue with NPCs.~
+@55 = ~Allow polymorphed creatures to cast divine spells without casting failure? (enter 1 or 2)
+1) Always incur 100% divine casting failure on polymorphed creatures (default)
+2) Allow characters to cast divine spells if the creature polymorphed into has enough natural wisdom and if the polymorphing was voluntary.~
+@56 = ~Enter a number from 1 to 25 (10 is recommended). This will determine the natural wisdom threshold. If a character is voluntarily polymorphed into a creature with a natural wisdom score at or above this threshold, they will be able to cast divine spells unhindered.~
+@57 = ~Allow polymorphed creatures to cast arcane spells without casting failure? (enter 1 or 2)
+1) Always incur 100% arcane casting failure on polymorphed creatures (default)
+2) Allow characters to cast arcane spells if the creature polymorphed into has enough natural intelligence and if the polymorphing was voluntary.~
+@58 = ~Enter a number from 1 to 25 (10 is recommended). This will determine the natural intelligence threshold. If a character is voluntarily polymorphed into a creature with a natural intelligence score at or above this threshold, they will be able to cast arcane spells unhindered.~
+@59 = ~You have selected the following options:~
+@60 = ~ * Polymorphed players CANNOT initiate dialgoue with NPCs.~
+@61 = ~ * Polymorphed players can initiate dialgoue with NPCs. (default)~
+@62 = ~ * Always incur 100% divine casting failure on polymorphed creatures (default)~
+@63 = ~ * Allow characters to cast divine spells if the creature polymorphed into has enough natural wisdom and if the polymorphing was voluntary. Threshold:~
+@64 = ~ * Always incur 100% arcane casting failure on polymorphed creatures (default)~
+@65 = ~ * Allow characters to cast arcane spells if the creature polymorphed into has enough natural intelligence and if the polymorphing was voluntary. Threshold:~
+@66 = ~Proceed with these choices? (enter 1 or 2)
+1) Proceed with installation.
+2) Re-select choices.~
+@69 = ~Mute Kelsey's Romance Music~
+@70 = ~Cosmetic Changes~
+@71 = ~Mute Xan's Romance Music~
+@72 = ~Remove Chaos Shield icons from all items~
+@73 = ~Lesser Mage Robe appearance for Robe of Good Archmagi~
+@74 = ~Change Appearance of Robe of Good Archmagi~
+@75 = ~Caped Mage Robe appearance for Robe of Good Archmagi~
+@76 = ~Hooded Mage Robe appearance for Robe of Good Archmagi~
+@77 = ~Leather Armor appearance for Robe of Good Archmagi~
+@78 = ~Chain Mail appearance for Robe of Good Archmagi~
+@79 = ~Plate Mail appearance for Robe of Good Archmagi~
+@80 = ~Lesser Mage Robe appearance for Robe of Neutral Archmagi~
+@81 = ~Change Appearance of Robe of Neutral Archmagi~
+@82 = ~Caped Mage Robe appearance for Robe of Neutral Archmagi~
+@83 = ~Hooded Mage Robe appearance for Robe of Neutral Archmagi~
+@84 = ~Leather Armor appearance for Robe of Neutral Archmagi~
+@85 = ~Chain Mail appearance for Robe of Neutral Archmagi~
+@86 = ~Plate Mail appearance for Robe of Neutral Archmagi~
+@87 = ~Lesser Mage Robe appearance for Robe of Evil Archmagi~
+@88 = ~Change Appearance of Robe of Evil Archmagi~
+@89 = ~Caped Mage Robe appearance for Robe of Evil Archmagi~
+@90 = ~Hooded Mage Robe appearance for Robe of Evil Archmagi~
+@91 = ~Leather Armor appearance for Robe of Evil Archmagi~
+@92 = ~Chain Mail appearance for Robe of Evil Archmagi~
+@93 = ~Plate Mail appearance for Robe of Evil Archmagi~
+@94 = ~Lesser Mage Robe appearance for Robe of Vecna~
+@95 = ~Change Appearance of Robe of Vecna~
+@96 = ~Caped Mage Robe appearance for Robe of Vecna~
+@97 = ~Hooded Mage Robe appearance for Robe of Vecna~
+@98 = ~Leather Armor appearance for Robe of Vecna~
+@99 = ~Chain Mail appearance for Robe of Vecna~
+@100 = ~Plate Mail appearance for Robe of Vecna~
+@101 = ~Standardize Poison Immunity~
+@102 = ~Standardize Weapon Immunity~
+@103 = ~Standardize Creature Immunities and Abilities~
+@104 = ~Streamlined Melee Summons AI~
+@105 = ~Treat all Innate Abilities as Non-Magical (Unaffected by Wild/Dead Magic and Silence)~
+@106 = ~Treat all Psionic Abilities as Non-Magical (Unaffected by Wild/Dead Magic and Silence)~
+@107 = ~Treat all Bardsong Effects as Non-Magical (Unaffected by Wild/Dead Magic)~
+@131 = ~Romance Cheat: Isra will Romance Neutral Characters~
+@132 = ~Romance Cheat: Adrian will Romance Elves~
+@133 = ~Give Hexxat an Inactive Fighter Class~
+@134 = ~The file is incompatible~
+@135 = ~The file has is broken or has an unexpected format~
+@136 = ~Appropriate XP Rewards for Cowled Enforcers~
+@137 = ~Mute Isra's Romance Music~
+@138 = ~Allow Arcane Spellcasting in Armor~
+@139 = ~Allow Thievery in Armor~
+@140 = ~Mute Adrian's Romance Music~
+@141 = ~Remove Delay from Improved Haste Spells~
+@142 = ~Free Action does not prevent Haste or Movement Rate Bonus~
+@143 = ~Reputation has no Effect on Store Prices~
+@144 = ~Charisma has a stronger Effect on Store Prices~
+@145 = ~Streamlined Wizard Spell Progression~
+@146 = ~Streamlined Sorcerer Spell Progression~
+@147 = ~The Manual of War~
+@148 = ~Stun~
+@149 = ~Stunned~
+@150 = ~Dominated~
+@151 = ~Charmed~
+@152 = ~Paralyzed~
+@153 = ~Held~
+@154 = ~Rigid Thinking~
+@155 = ~Confused~
+@156 = ~Sleep~
+@157 = ~Dire charmed~
+@158 = ~Slowed~
+@159 = ~Slow~
+@160 = ~Elven Tome~
+@161 = ~A plain, unadorned elven tome.
+
+STATISTICS:
+
+Weight: 20~
+@162 = ~Spell Ineffective~
+@163 = ~Blind~
+@164 = ~Blinded~
+@165 = ~Blindness~
+@166 = ~Poison~
+@167 = ~Poisoned~
+@168 = ~Diseased~
+@169 = ~Stricken by a foul disease~
+@170 = ~Petrified~
+@171 = ~Silenced~
+@172 = ~Silenced~
+@173 = ~This component has been deprecated.~
+@174 = ~AI: Attack~
+@175 = ~AI: Off~
+@176 = ~AI: Stealth~
+@177 = ~AI: Find Traps~
+@178 = ~AI: Turn Undead~
+@179 = ~AI: Bard Song~
+@180 = ~Cannot buff in combat~
+@181 = ~Cannot buff due to casting failure~
+@182 = ~Already buffing~
+@183 = ~Buffing myself~
+@184 = ~Buffing others~
+@185 = ~Buffing with area spells~
+@186 = ~Buffing done~
+@187 = ~Modal Buff AI Script~
+@188 = ~This script lets a character quickly apply most of their defensive spells in preparation for combat. Pressing "%hotkey_self%" causes the character to buff themselves. Pressing "%hotkey_other%" causes them to buff all party member in close range in turn. Pressing "%hotkey_party%" causes them to cast area-of-effect spells on themselves, thus trying to affect the entire party.
+Additionally, this script offers basic control over the character's general behavious. Based on their class, several modes (such as searching for traps or turning undead) can be cycled through by pressing "%hotkey_cycle%". The script can be toggled on or off by pressing "%hotkey_toggle%". (<script>)~
+@189 = ~Identify all store items~
+@190 = ~Familiars can sort magical scrolls~
+@191 = ~Im done sorting! Finally.~
+@192 = ~Mute Kivan's BG2 music tracks~
+@193 = ~Mute BG1 NPC Project music tracks~
+@194 = ~Panic~
+@195 = ~Panic~
+@196 = ~CtB: Skip Candlekeep Chores and intro cutscenes~
+@197 = ~RoT: Remove cutscenes from Chateau Irenicus~
+@198 = ~Required mod component missing~
+@199 = ~CtB: Mute the Cowled Wizard~
+@200 = ~CtB: Remove Venereal Disease~
+@201 = ~CtB: Fixed Harp of Myth Drannor~
+@202 = ~Has gained permanent protection from hostile mind-affecting magic.~
+@203 = ~Can now cast more spells per round.~
+@204 = ~Became immune to petrification.~
+@205 = ~Was cursed forevermore with a berserker's rage.~
+@206 = ~Has been granted a bonus to their critical hit chance.~
+@207 = ~Has gained an extra 1/2 attack per round.~
+@208 = ~CHARISMA increased by 1.~
+@209 = ~Can now use any item.~
+@210 = ~Alignment Change: NEUTRAL~
+@211 = ~Permanently deaf.~
+@212 = ~STRENGTH increased by 1.~
+@213 = ~DEXTERITY increased by 1.~
+@214 = ~CONSTITUTION increased by 1.~
+@215 = ~INTELLIGENCE increased by 1.~
+@216 = ~WISDOM increased by 1.~
+@217 = ~Casting Speed improved by 1.~
+@218 = ~AC improved by 1.~
+@219 = ~Weapon damage increased by 1.~
+@220 = ~Has permanent Free Action.~
+@221 = ~Regenerates 1 HP per round.~
+@222 = ~Immune to poisons and diseases.~

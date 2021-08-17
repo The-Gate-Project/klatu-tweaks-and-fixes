@@ -1,0 +1,13 @@
+IF
+	OnCreation()
+	!HasItem("CBWTNI1a",Myself) // Harp of Myth Drannor
+THEN
+	RESPONSE #25
+		GiveItemCreate("CBWTNI1a",Myself,7,7,7) // Harp of Myth Drannor
+	RESPONSE #25
+		GiveItemCreate("CBWTNI1a",Myself,6,6,6) // Harp of Myth Drannor
+	RESPONSE #25
+		GiveItemCreate("CBWTNI1a",Myself,5,5,5) // Harp of Myth Drannor
+	RESPONSE #25
+		GiveItemCreate("CBWTNI1a",Myself,4,4,4) // Harp of Myth Drannor
+END
