@@ -175,10 +175,12 @@ common.tpa
 			PATCH_IF ((fxOff >= 0x72 AND fxOff <= off) AND (abilNum = 0 OR (abilOff >= 0x72 AND abilOff <= (off - abilNum * abilLen)))) BEGIN
 				abilSize = abilNum * abilLen
 				PATCH_IF (abilOff != 0x72) BEGIN
-					INSERT_BYTES 0x72 abilSize
-					LPF COPY_BYTES INT_VAR src = abilOff + abilSize dst = 0x72 len = abilSize END
-					DELETE_BYTES abilOff abilSize
-					fxOff += abilSize
+					PATCH_IF (abilSize != 0) BEGIN
+						INSERT_BYTES 0x72 abilSize
+						LPF COPY_BYTES INT_VAR src = abilOff + abilSize dst = 0x72 len = abilSize END
+						DELETE_BYTES abilOff abilSize
+						fxOff += abilSize
+					END
 					WRITE_LONG 0x64 0x72
 				END
 				gapLen = fxOff - 0x72 - abilSize
