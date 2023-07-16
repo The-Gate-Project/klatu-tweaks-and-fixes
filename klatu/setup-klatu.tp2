@@ -1,6 +1,6 @@
 BACKUP ~klatu/backup~
 AUTHOR ~klatu~
-VERSION ~1.7~
+VERSION ~1.7.1~
 README ~klatu/readme-klatu.html~
 
 AUTO_TRA ~klatu/lang/%s~
