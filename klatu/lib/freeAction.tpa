@@ -104,7 +104,18 @@ BEGIN
 							AND sBonusB = sBonus
 						) BEGIN									// effect is related
 							READ_STRREF (off + 0x04) strRef
-							PATCH_IF (
+                                                        SET c7__c7__remove_this_effect = 0
+                                                        PATCH_IF opcode == 206 BEGIN
+                                                          READ_ASCII (off + 0x14) c7__c7__resource
+                                                          INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
+                                                            READ_STRREF 0x8 c7__c7__spell_name
+                                                          END
+                                                          PATCH_IF NOT ("%c7__c7__spell_name%" STRING_CONTAINS_REGEXP "Haste") BEGIN
+                                                            SET c7__c7__remove_this_effect = 1
+                                                          END
+                                                        END
+                                                        PATCH_IF (
+                                                                c7__c7__remove_this_effect == 1
 								opcode = 126					// opcode: move mod -
 								OR 
 								opcode = 176					// opcode: move mod +
@@ -211,7 +222,18 @@ BEGIN
 						AND sBonusB = sBonus
 					) BEGIN									// effect is related
 						READ_STRREF (off + 0x04) strRef
-						PATCH_IF (
+                                                SET c7__c7__remove_this_effect = 0
+                                                PATCH_IF opcode == 206 BEGIN
+                                                  READ_ASCII (off + 0x14) c7__c7__resource
+                                                  INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
+                                                    READ_STRREF 0x8 c7__c7__spell_name
+                                                  END
+                                                  PATCH_IF NOT ("%c7__c7__spell_name%" STRING_CONTAINS_REGEXP "Haste") BEGIN
+                                                    SET c7__c7__remove_this_effect = 1
+                                                  END
+                                                END
+                                                PATCH_IF (
+                                                        c7__c7__remove_this_effect == 1
 							opcode = 126					// opcode: move mod -
 							OR 
 							opcode = 176					// opcode: move mod +
@@ -324,7 +346,18 @@ BEGIN
 						AND sBonusB = sBonus
 					) BEGIN									// effect is related
 						READ_STRREF (off + 0x14) strRef
-						PATCH_IF (
+                                                SET c7__c7__remove_this_effect = 0
+                                                PATCH_IF opcode == 206 BEGIN
+                                                  READ_ASCII (off + 0x14) c7__c7__resource
+                                                  INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
+                                                    READ_STRREF 0x8 c7__c7__spell_name
+                                                  END
+                                                  PATCH_IF NOT ("%c7__c7__spell_name%" STRING_CONTAINS_REGEXP "Haste") BEGIN
+                                                    SET c7__c7__remove_this_effect = 1
+                                                  END
+                                                END
+                                                PATCH_IF (
+                                                        c7__c7__remove_this_effect == 1
 							opcode = 126					// opcode: move mod -
 							OR 
 							opcode = 176					// opcode: move mod +
