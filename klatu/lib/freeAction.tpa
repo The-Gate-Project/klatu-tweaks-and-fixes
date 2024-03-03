@@ -110,7 +110,11 @@ BEGIN
                                                           INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
                                                             READ_STRREF 0x8 c7__c7__spell_name
                                                           END
-                                                          PATCH_IF NOT ("%c7__c7__spell_name%" STRING_CONTAINS_REGEXP "Hast") BEGIN
+                                                          SPRINT c7__haste_name @223
+                                                          SPRINT c7__improved_haste_name @224
+                                                          SPRINT c7__hasted_string @225
+                                                          PATCH_IF ("%c7__c7__spell_name%" STR_EQ "%c7__improved_haste_name%" ||
+                                                                    "%c7__c7__spell_name%" STR_EQ "%c7__haste_name%") BEGIN
                                                             SET c7__c7__remove_this_effect = 1
                                                           END
                                                         END
@@ -131,9 +135,7 @@ BEGIN
 								OR 
 								(opcode = 240 AND param2 = 38)	// remove icon: haste
 								OR
-								(opcode = 267 AND (~%strRef%~ STRING_EQUAL_CASE ~hasted~))	// prevent string: hasted
-								OR
-								(opcode = 267 AND (~%strRef%~ STRING_EQUAL_CASE ~Beschleunigt~))	// prevent string: hasted
+								(opcode = 267 AND (~%strRef%~ STR_EQ "%c7__hasted_string%"))      // prevent string: hasted
 							) BEGIN
 								LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = g END
 								PATCH_IF (g < f) BEGIN
@@ -231,7 +233,11 @@ BEGIN
                                                   INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
                                                     READ_STRREF 0x8 c7__c7__spell_name
                                                   END
-                                                  PATCH_IF NOT ("%c7__c7__spell_name%" STRING_CONTAINS_REGEXP "Hast") BEGIN
+                                                  SPRINT c7__haste_name @223
+                                                  SPRINT c7__improved_haste_name @224
+                                                  SPRINT c7__hasted_string @225
+                                                  PATCH_IF ("%c7__c7__spell_name%" STR_EQ "%c7__improved_haste_name%" ||
+                                                            "%c7__c7__spell_name%" STR_EQ "%c7__haste_name%") BEGIN
                                                     SET c7__c7__remove_this_effect = 1
                                                   END
                                                 END
@@ -252,9 +258,7 @@ BEGIN
 							OR 
 							(opcode = 240 AND param2 = 38)	// remove icon: haste
 							OR
-							(opcode = 267 AND (~%strRef%~ STRING_EQUAL_CASE ~hasted~))	// prevent string: hasted
-							OR
-							(opcode = 267 AND (~%strRef%~ STRING_EQUAL_CASE ~Beschleunigt~))	// prevent string: hasted
+							(opcode = 267 AND (~%strRef%~ STR_EQ "%c7__hasted_string%"))      // prevent string: hasted
 						) BEGIN
 							LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g END
 							PATCH_IF (g < f) BEGIN
@@ -358,7 +362,11 @@ BEGIN
                                                   INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
                                                     READ_STRREF 0x8 c7__c7__spell_name
                                                   END
-                                                  PATCH_IF NOT ("%c7__c7__spell_name%" STRING_CONTAINS_REGEXP "Hast") BEGIN
+                                                  SPRINT c7__haste_name @223
+                                                  SPRINT c7__improved_haste_name @224
+                                                  SPRINT c7__hasted_string @225
+                                                  PATCH_IF ("%c7__c7__spell_name%" STR_EQ "%c7__improved_haste_name%" ||
+                                                            "%c7__c7__spell_name%" STR_EQ "%c7__haste_name%") BEGIN
                                                     SET c7__c7__remove_this_effect = 1
                                                   END
                                                 END
@@ -379,9 +387,7 @@ BEGIN
 							OR 
 							(opcode = 240 AND param2 = 38)	// remove icon: haste
 							OR
-							(opcode = 267 AND (~%strRef%~ STRING_EQUAL_CASE ~Hasted~))	// prevent string: hasted
-							OR
-							(opcode = 267 AND (~%strRef%~ STRING_EQUAL_CASE ~Beschleunigt~))	// prevent string: hasted
+							(opcode = 267 AND (~%strRef%~ STR_EQ "%c7__hasted_string%"))      // prevent string: hasted
 						) BEGIN
 							LPF REMOVE_EFFECT_CRE INT_VAR idx = g END
 							PATCH_IF (g < f) BEGIN
