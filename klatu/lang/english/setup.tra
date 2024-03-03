@@ -12,7 +12,7 @@
 STATISTICS: 
 
 Equipped abilities: 
-– Bonus to wild surge rolls on wearer
+â€“ Bonus to wild surge rolls on wearer
 
 Weight: 1~
 @8 = ~Prepared Wishes~
@@ -421,3 +421,6 @@ Additionally, this script offers basic control over the character's general beha
 @220 = ~Has permanent Free Action.~
 @221 = ~Regenerates 1 HP per round.~
 @222 = ~Immune to poisons and diseases.~
+@223 = ~Haste~ // should say "Haste" as per the spell's name
+@224 = ~Improved Haste~ //same deal here
+@225 = ~Hasted~ // should be the string that shows up when you get hasted
