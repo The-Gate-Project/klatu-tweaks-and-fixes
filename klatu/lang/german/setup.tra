@@ -421,4 +421,6 @@ Zusätzlich habt Ihr Kontrolle über das grundlegende Verhalten des Charakters. Ab
 @220 = ~Hat permanente Bewegungsfreiheit.~
 @221 = ~Regeneriert 1 Trefferpunkt pro Runde.~
 @222 = ~Immun gegen Gifte und Krankheiten.~
-
+@223 = ~Hast~
+@224 = ~Verbesserte Hast~
+@225 = ~Beschleunigt~
