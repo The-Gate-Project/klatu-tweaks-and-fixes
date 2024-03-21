@@ -2898,7 +2898,7 @@ LANGUAGE ~German~
 		LABEL KLATU-MUTE-KIVAN-ROMANCE-SONG
 		GROUP @70 // Cosmetic Changes
 		REQUIRE_PREDICATE GAME_IS ~soa tob tutu tutu_totsc bgt iwd_in_bg2 bgee bg2ee eet iwdee~ @2
-		REQUIRE_PREDICATE MOD_IS_INSTALLED ~KIVAN/SETUP-KIVAN.TP2~ ~0~ @198 // Required mod component missing
+		REQUIRE_PREDICATE MOD_IS_INSTALLED ~KIVAN/SETUP-KIVAN.TP2~ ~100~ @198 // Required mod component missing
 
 		ACTION_FOR_EACH song IN ~kivan00~ ~kivan000~ ~p#deh00~ BEGIN
 			COPY	~klatu/wav/mute.wav~ ~override/%song%.wav~
