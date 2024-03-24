@@ -3,6 +3,22 @@ AUTHOR ~klatu~
 VERSION ~1.7.3~
 README ~klatu/readme-klatu.html~
 
+ALWAYS
+	ACTION_DEFINE_ARRAY kla#noconvert BEGIN END
+	ACTION_DEFINE_ARRAY kla#reload BEGIN ~setup~ END
+
+	LAF HANDLE_CHARSETS
+	INT_VAR
+		infer_charset     = 1
+		from_utf8         = 1
+	STR_VAR
+		default_language  = ~english~
+		tra_path          = ~klatu/lang~
+		noconvert_array   = ~kla#noconvert~
+		reload_array      = ~kla#reload~
+	END
+END
+
 AUTO_TRA ~klatu/lang/%s~
 LANGUAGE ~English~
          ~English~
