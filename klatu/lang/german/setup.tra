@@ -1,7 +1,7 @@
 @0 = ~Die Handschuhe von Gevatter Hees~
 @1 = ~Inhaltsaenderungen~
 @2 = ~Inkompatibles Spiel~
-@3 = ~Nötige Datei fehlt~
+@3 = ~Noetige Datei fehlt~
 @4 = ~Namespace voll~
 @5 = ~Handschuhe~
 @6 = ~Handschuhe von Gevatter Hees~
@@ -11,10 +11,10 @@
 
 EIGENSCHAFTEN:
 
-Bonus auf alle Würfe für Unbändige Wogen
+Chaosschild (permanent)
 
 Gewicht: 1~
-@8 = ~Geplante Wünsche~
+@8 = ~Geplante Wuensche~
 @9 = ~Willkürlicher Wunsch~
 @10 = ~Wunsch: Eigenschaften anheben~
 @11 = ~Wunsch: Eigenschaften anheben
@@ -185,8 +185,8 @@ Rettungswurf: Speziell
 Dieser Zauber ist eine spezielle Variante des mächtigen Wunsches. Er erlaubt es dem Magier einen bereits vorbereiteten Vertrag an den Dschjinn, mit dem dieser aufgesetzt wurde, über die Ebenen hinweg zu übermitteln. Der Dschjinn muss so nicht länger anwesend sein, um den Wunsch zu erfüllen. Allerdings ist es für unerfahrene Magier äußerst schwierig, den Vertrag über solche Distanzen fehlerfrei zu rezitieren. Falls solch ein Fehler auftritt, interpretiert der Dschinn den Wunsch nach eigener Vorliebe.
 
 Dieser bestimmte Wunsch soll „Magieresistenz“ auf alle Anwesenden in dem Gebiet bewirken, einschließlich Gruppenmitglieder und Feinde.~
-@34 = ~Wish: Mass Horrid Wilting~ ~Wunsch: Abscheuliche Austrocknung~
-@35 = ~Wunsch: „Abscheuliche Austrocknung“
+@34 = ~Wunsch: Abi-Dalzims abscheuliche Austrocknung~
+@35 = ~Wunsch: Abi-Dalzims abscheuliche Austrocknung
 
 Grad: 9
 Schule: Beschwörung
@@ -286,7 +286,7 @@ Dieser bestimmte Wunsch soll „Genesung“ auf alle Gruppenmitglieder bewirken.
 1) Mit der Installation fortfahren.
 2) Optionen erneut wählen.~
 @69 = ~Kelseys romantische Musik stummschalten~
-@70 = ~Kosmetische Änderungen~
+@70 = ~Kosmetische Aenderungen~
 @71 = ~Xans romantische Musik stummschalten~
 @72 = ~Chaosschild Icons von allen Gegenständen entfernen~
 @73 = ~Geringe-Robe-Aussehen für Robe der Guten Erzmagier~
