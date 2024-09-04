@@ -358,7 +358,7 @@ BEGIN
 						READ_STRREF (off + 0x14) strRef
                                                 SET c7__c7__remove_this_effect = 0
                                                 PATCH_IF opcode == 206 BEGIN
-                                                  READ_ASCII (off + 0x14) c7__c7__resource
+                                                  READ_ASCII (off + 0x28) c7__c7__resource
                                                   INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
                                                     READ_STRREF 0x8 c7__c7__spell_name
                                                   END
