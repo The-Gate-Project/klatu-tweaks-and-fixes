@@ -1235,7 +1235,7 @@ LANGUAGE ~German~
 	/////                                                       /////
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
-		BEGIN ~Drop Equipment on Congelation~ DESIGNATED 2091
+		BEGIN @226 /* ~Drop Equipment on Congelation~ */ DESIGNATED 2091
 		LABEL KLATU-DROP-EQUIPMENT-ON-CONGELATION
 		GROUP @45
 		REQUIRE_PREDICATE GAME_IS ~soa tob tutu tutu_totsc bgt iwd_in_bg2 bgee bg2ee eet iwdee~ @2
