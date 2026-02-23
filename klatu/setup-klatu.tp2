@@ -1231,6 +1231,29 @@ LANGUAGE ~German~
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
 	/////                                                       /////
+	///// Drop Equipment on Congelation                      /////
+	/////                                                       /////
+	/////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+		BEGIN ~Drop Equipment on Congelation~ DESIGNATED 2091
+		LABEL KLATU-DROP-EQUIPMENT-ON-CONGELATION
+		GROUP @45
+		REQUIRE_PREDICATE GAME_IS ~soa tob tutu tutu_totsc bgt iwd_in_bg2 bgee bg2ee eet iwdee~ @2
+		INCLUDE ~klatu/lib/common.tpa~
+		INCLUDE ~klatu/lib/dropEquipment.tpa~
+
+		COPY ~klatu/spl/drop.spl~ ~override/kla#deqc.spl~
+		COPY ~klatu/eff/drop.eff~ ~override/kla#deqc.eff~
+			WRITE_ASCIIE 0x30 ~kla#deqc~ #8
+		LAF DQ_IMPLEMENT_DROP_EQUIPMENT
+			INT_VAR	opcode = 13 requiredDelay = 0 parameter2 = 128
+			STR_VAR logFile = ~klatu/log/drop.txt~ dropRes = ~kla#deqc~
+		END
+		
+
+	/////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+	/////                                                       /////
 	///// Drop Equipment on Imprisonment                        /////
 	/////                                                       /////
 	/////////////////////////////////////////////////////////////////
