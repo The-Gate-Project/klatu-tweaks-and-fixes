@@ -1243,13 +1243,27 @@ LANGUAGE ~German~
 		INCLUDE ~klatu/lib/dropEquipment.tpa~
 
 		COPY ~klatu/spl/drop.spl~ ~override/kla#deqc.spl~
+//		SAY NAME1 ~kla#deqc~
+//		SAY NAME2 ~kla#deqc~
 		COPY ~klatu/eff/drop.eff~ ~override/kla#deqc.eff~
 			WRITE_ASCIIE 0x30 ~kla#deqc~ #8
-		LAF DQ_IMPLEMENT_DROP_EQUIPMENT
-			INT_VAR	opcode = 13 requiredDelay = 0 parameter2 = 128
-			STR_VAR logFile = ~klatu/log/drop.txt~ dropRes = ~kla#deqc~
+		COPY ~klatu/spl/kla#decc.spl~ ~override~ // Opcode 326 (Apply Effects List) parameter1 64 (STATE_FROZEN_DEATH) parameter2 138 (STATE)
+//		SAY NAME1 ~kla#decc~
+//		SAY NAME2 ~kla#decc~
+
+COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+      LPF ADD_CRE_EFFECT
+      INT_VAR
+        opcode        = 232 // (Spell Effect: Cast Spell on Condition)
+		target        = 1
+		timing        = 9
+        parameter1    = 0
+		parameter2    = 16 // (Die())
+		STR_VAR
+		resource      = ~kla#decc~
 		END
-		
+BUT_ONLY
+
 
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
