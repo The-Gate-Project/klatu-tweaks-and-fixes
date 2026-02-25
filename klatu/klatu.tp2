@@ -1243,6 +1243,7 @@ LANGUAGE ~German~
 		INCLUDE ~klatu/lib/dropEquipment.tpa~
 
 		COPY ~klatu/spl/drop.spl~ ~override/kla#deqc.spl~
+
 	ACTION_IF GAME_IS ~bgee bg2ee eet iwdee~ THEN BEGIN
 		COPY ~klatu/spl/kla#decc.spl~ ~override~
 			LPF ALTER_SPELL_EFFECT
@@ -1254,38 +1255,33 @@ LANGUAGE ~German~
 				STR_VAR
 					resource      = ~kla#deqc~
 			END
-	END ELSE BEGIN
-		COPY ~klatu/spl/kla#decc.spl~ ~override~
-			LPF DELETE_SPELL_EFFECT
+		COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+			LPF ADD_CRE_EFFECT
 				INT_VAR
-					opcode_to_delete = 326
+					opcode        = 232 // (Spell Effect: Cast Spell on Condition)
+					target        = 1
+					timing        = 9
+					parameter1    = 0 // (myself)
+					parameter2    = 16 // (Die())
+				STR_VAR
+					resource      = ~kla#decc~
 			END
-			LPF ADD_SPELL_EFFECT
+		BUT_ONLY
+	END ELSE BEGIN
+		COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+			LPF ADD_CRE_EFFECT
 				INT_VAR
 					opcode         = 232 //  (Spell Effect: Cast Spell on Condition)
-				target        = 1
-				timing        = 9
+					target        = 1
+					timing        = 9
 					parameter1     = 0 //  (myself) 
 					parameter2     = 15 // (STATE.ids)
 					special        = 64 // STATE_FROZEN_DEATH
 				STR_VAR
 					resource      = ~kla#deqc~
 			END
+		BUT_ONLY
 	END
-
-	COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
-		LPF ADD_CRE_EFFECT
-			INT_VAR
-				opcode        = 232 // (Spell Effect: Cast Spell on Condition)
-				target        = 1
-				timing        = 9
-				parameter1    = 0 // (myself)
-				parameter2    = 16 // (Die())
-			STR_VAR
-				resource      = ~kla#decc~
-		END
-	BUT_ONLY
-
 
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
