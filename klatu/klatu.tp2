@@ -1231,6 +1231,61 @@ LANGUAGE ~German~
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
 	/////                                                       /////
+	///// Drop Equipment on Congelation                         /////
+	/////                                                       /////
+	/////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+		BEGIN @226 /* ~Drop Equipment on Congelation~ */ DESIGNATED 2091
+		LABEL KLATU-DROP-EQUIPMENT-ON-CONGELATION
+		GROUP @45
+		REQUIRE_PREDICATE GAME_IS ~soa tob tutu tutu_totsc bgt iwd_in_bg2 bgee bg2ee eet iwdee~ @2
+		INCLUDE ~klatu/lib/common.tpa~
+		INCLUDE ~klatu/lib/dropEquipment.tpa~
+
+		COPY ~klatu/spl/drop.spl~ ~override/kla#deqc.spl~
+
+	ACTION_IF GAME_IS ~bgee bg2ee eet iwdee~ THEN BEGIN
+		COPY ~klatu/spl/kla#decc.spl~ ~override~
+			LPF ALTER_SPELL_EFFECT
+				INT_VAR
+					check_headers  = 1
+					match_opcode   = 326 //  (Apply Effects List)
+					parameter1     = 64 //  (STATE_FROZEN_DEATH) 
+					parameter2     = 138 // (STATE.ids)
+				STR_VAR
+					resource      = ~kla#deqc~
+			END
+		COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+			LPF ADD_CRE_EFFECT
+				INT_VAR
+					opcode        = 232 // (Spell Effect: Cast Spell on Condition)
+					target        = 1
+					timing        = 9
+					parameter1    = 0 // (myself)
+					parameter2    = 16 // (Die())
+				STR_VAR
+					resource      = ~kla#decc~
+			END
+		BUT_ONLY
+	END ELSE BEGIN
+		COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+			LPF ADD_CRE_EFFECT
+				INT_VAR
+					opcode         = 232 //  (Spell Effect: Cast Spell on Condition)
+					target        = 1
+					timing        = 9
+					parameter1     = 0 //  (myself) 
+					parameter2     = 15 // (STATE.ids)
+					special        = 64 // STATE_FROZEN_DEATH
+				STR_VAR
+					resource      = ~kla#deqc~
+			END
+		BUT_ONLY
+	END
+
+	/////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+	/////                                                       /////
 	///// Drop Equipment on Imprisonment                        /////
 	/////                                                       /////
 	/////////////////////////////////////////////////////////////////

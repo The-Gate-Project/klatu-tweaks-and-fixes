@@ -424,3 +424,5 @@ Additionally, this script offers basic control over the character's general beha
 @223 = ~Haste~ // should say "Haste" as per the spell's name
 @224 = ~Improved Haste~ //same deal here
 @225 = ~Hasted~ // should be the string that shows up when you get hasted
+
+@226 = ~Drop Equipment on Congelation~
