@@ -1,3 +1,4 @@
+INCLUDE ~klatu/lib/freeActionResources.tpa~
 
 
 // freeAction.tpa
@@ -11,17 +12,18 @@
 // use 126 for negative modification
 // use 176 for positive modification
 
-// always remove every immunity:176
+// Within Free Action groups, remove immunity to positive movement (176).
 
 
-// collect all spells that apply an opcode 16 (haste)
+// Discover Haste (16/317), including helper spells and EFF resources.
 //
 
 // whenever have opcode 163 (free action)
-// remvove every	206 (protect) : all haste spells
+// remove every	206 (protect) : all discovered haste spells
 //					126 (move mod)
 //					176 (move mod) if neutral
-//					101 (immunity) :16 (haste)
+//					101 / 337 : 16 or 317 (haste)
+//                  328 : dynamically resolved HASTE_IMMUNITY spell state
 //					169 (no icon): 38 (haste icon)
 // and add			101 (immunity): 126 (-move)
 
@@ -30,6 +32,8 @@
 DEFINE_ACTION_FUNCTION FA_IMPLEMENT_FREE_ACTION
 	STR_VAR logFile = ~~	// lists all spells that apply a haste opcode
 BEGIN
+	LAF FA_BUILD_RESOURCE_GRAPH RET fa_haste_state RET_ARRAY fa_resource_flags END
+	LAF FA_REWRITE_EXTERNAL_MOVEMENT END
 	LAF TRUNCATE_FILE STR_VAR file = EVAL ~%logFile%~ END	// reset log
 	
 	COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
@@ -38,7 +42,12 @@ BEGIN
 	
 	COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
 		LPF FA_REWRITE_MOVE_MODS INT_VAR abilLen = 0x28 END
-		LPF APPLIES_EFFECT_SPL INT_VAR opcode = 16 RET value = value END
+		SPRINT fa_key ~%SOURCE_RES%.SPL~
+		TO_UPPER fa_key
+		SET value = 0
+		PATCH_IF VARIABLE_IS_SET $fa_resource_flags(~%fa_key%~) BEGIN
+			SET value = ($fa_resource_flags(~%fa_key%~) BAND 1)
+		END
 		PATCH_IF value BEGIN	// the spell applies a haste opcode
 			LPF UPDATE_LOG STR_VAR file = EVAL ~%logFile%~ value = EVAL ~%SOURCE_RES%~ END	// add spell to log
 		END
@@ -86,6 +95,7 @@ BEGIN
 							prob1 = prob1		prob2 = prob2
 							sType = sType		sBonus = sBonus
 				END
+				LPF FA_INSPECT_EFFECT INT_VAR off = off v2 = 0 RET opcode = opcode param1 = param1 param2 = param2 fa_special = fa_special fa_effect_resource = fa_effect_resource END
 				PATCH_IF (opcode = 163) BEGIN	// opcode: free action
 					FOR (g = afxNum - 1; g >= 0; --g) BEGIN
 						off = fxOff + (afxIdx + g) * 0x30
@@ -96,47 +106,12 @@ BEGIN
 									prob1B = prob1		prob2B = prob2
 									sTypeB = sType		sBonusB = sBonus
 						END
+						LPF FA_INSPECT_EFFECT INT_VAR off = off v2 = 0 RET opcode = opcode param1 = param1 param2 = param2 fa_special = fa_special fa_effect_resource = fa_effect_resource END
 						PATCH_IF (
 							targetB = target
-							AND prob1B = prob1
-							AND prob2B = prob2
-							AND sTypeB = sType
-							AND sBonusB = sBonus
 						) BEGIN									// effect is related
-							READ_STRREF (off + 0x04) strRef
-                                                        SET c7__c7__remove_this_effect = 0
-                                                        PATCH_IF opcode == 206 BEGIN
-                                                          READ_ASCII (off + 0x14) c7__c7__resource
-                                                          INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
-                                                            READ_STRREF 0x8 c7__c7__spell_name
-                                                          END
-                                                          SPRINT c7__haste_name @223
-                                                          SPRINT c7__improved_haste_name @224
-                                                          SPRINT c7__hasted_string @225
-                                                          PATCH_IF ("%c7__c7__spell_name%" STR_EQ "%c7__improved_haste_name%" ||
-                                                                    "%c7__c7__spell_name%" STR_EQ "%c7__haste_name%") BEGIN
-                                                            SET c7__c7__remove_this_effect = 1
-                                                          END
-                                                        END
-                                                        PATCH_IF (
-                                                                c7__c7__remove_this_effect == 1
-								OR
-								opcode = 126					// opcode: move mod -
-								OR 
-								opcode = 176					// opcode: move mod +
-								OR 
-								(opcode = 101 AND param2 = 16)	// immune: haste
-								OR 
-								(opcode = 101 AND param2 = 126)	// immune: move mod -
-								OR 
-								(opcode = 101 AND param2 = 176)	// immune: move mod +
-								OR 
-								(opcode = 169 AND param2 = 38)	// prevent icon: haste
-								OR 
-								(opcode = 240 AND param2 = 38)	// remove icon: haste
-								OR
-								(opcode = 267 AND (~%strRef%~ STR_EQ "%c7__hasted_string%"))      // prevent string: hasted
-							) BEGIN
+							LPF FA_SHOULD_REMOVE_EFFECT INT_VAR off = off v2 = 0 RET fa_remove END
+							PATCH_IF fa_remove BEGIN
 								LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = g END
 								PATCH_IF (g < f) BEGIN
 									--f
@@ -145,51 +120,23 @@ BEGIN
 							END
 						END
 					END
-					
-					LPF GET_FILE_SIZE STR_VAR file = EVAL ~%logFile%~ RET logLen = value END
-					FOR (i = 0; i < logLen; i += 8) BEGIN
-						LPF READ_LOG INT_VAR off = i STR_VAR file = EVAL ~%logFile%~ RET res = value END
-						FOR (g = afxNum - 1; g >= 0; --g) BEGIN
-							off = fxOff + (afxIdx + g) * 0x30
-							LPF READ_EFFECT 
-								INT_VAR	off = off
-								RET		opcode = opcode		targetB = target
-										param1 = param1		param2 = param2
-										prob1B = prob1		prob2B = prob2
-										resB = res			sTypeB = sType
-										sBonusB = sBonus
-							END
-							PATCH_IF (
-								targetB = target
-								AND prob1B = prob1
-								AND prob2B = prob2
-								AND sTypeB = sType
-								AND sBonusB = sBonus
-							) BEGIN									// effect is related
-								PATCH_IF (opcode = 206 AND (~%resB%~ STRING_EQUAL_CASE ~%res%~)) BEGIN
-									// remove protection from haste spell resource
-									LPF REMOVE_ABILITY_EFFECT INT_VAR abilLen = abilLen abilIdx = a idx = g END
-									PATCH_IF (g < f) BEGIN
-										--f
-									END
-									--afxNum
-								END
-							END
-						END
-					END
+
 					
 					// add immune: move mod -
-					LPF COPY_ABILITY_EFFECT
-						INT_VAR abilLen = abilLen
-								abilIdx = a
-								idx = f
-								toIdx = f + 1
-						RET		off = off
+					READ_SHORT (fxOff + (afxIdx + f) * 0x30) fa_source_opcode
+					PATCH_IF fa_source_opcode = 163 BEGIN
+						LPF COPY_ABILITY_EFFECT
+							INT_VAR abilLen = abilLen
+									abilIdx = a
+									idx = f
+									toIdx = f + 1
+							RET		off = off
+						END
+						WRITE_SHORT off 101				// immu: opcode
+						WRITE_LONG (off + 0x08) 126		// move mod -
+						++afxNum
+						// done adding
 					END
-					WRITE_SHORT off 101				// immu: opcode
-					WRITE_LONG (off + 0x08) 126		// move mod - 
-					++afxNum
-					// done adding
 					
 				END
 			END
@@ -205,6 +152,7 @@ BEGIN
 						sType = sType
 						sBonus = sBonus
 			END
+			LPF FA_INSPECT_EFFECT INT_VAR off = off v2 = 0 RET opcode = opcode param1 = param1 param2 = param2 fa_special = fa_special fa_effect_resource = fa_effect_resource END
 			PATCH_IF (opcode = 163) BEGIN	// opcode: free action
 				FOR (g = fxNum - 1; g >= 0; --g) BEGIN
 					off = fxOff + g * 0x30
@@ -219,47 +167,12 @@ BEGIN
 								sTypeB = sType
 								sBonusB = sBonus
 					END
+					LPF FA_INSPECT_EFFECT INT_VAR off = off v2 = 0 RET opcode = opcode param1 = param1 param2 = param2 fa_special = fa_special fa_effect_resource = fa_effect_resource END
 					PATCH_IF (
 						targetB = target
-						AND prob1B = prob1
-						AND prob2B = prob2
-						AND sTypeB = sType
-						AND sBonusB = sBonus
 					) BEGIN									// effect is related
-						READ_STRREF (off + 0x04) strRef
-                                                SET c7__c7__remove_this_effect = 0
-                                                PATCH_IF opcode == 206 BEGIN
-                                                  READ_ASCII (off + 0x14) c7__c7__resource
-                                                  INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
-                                                    READ_STRREF 0x8 c7__c7__spell_name
-                                                  END
-                                                  SPRINT c7__haste_name @223
-                                                  SPRINT c7__improved_haste_name @224
-                                                  SPRINT c7__hasted_string @225
-                                                  PATCH_IF ("%c7__c7__spell_name%" STR_EQ "%c7__improved_haste_name%" ||
-                                                            "%c7__c7__spell_name%" STR_EQ "%c7__haste_name%") BEGIN
-                                                    SET c7__c7__remove_this_effect = 1
-                                                  END
-                                                END
-                                                PATCH_IF (
-                                                        c7__c7__remove_this_effect == 1
-							OR
-							opcode = 126					// opcode: move mod -
-							OR 
-							opcode = 176					// opcode: move mod +
-							OR 
-							(opcode = 101 AND param2 = 16)	// immune: haste
-							OR 
-							(opcode = 101 AND param2 = 126)	// immune: move mod -
-							OR 
-							(opcode = 101 AND param2 = 176)	// immune: move mod +
-							OR 
-							(opcode = 169 AND param2 = 38)	// prevent icon: haste
-							OR 
-							(opcode = 240 AND param2 = 38)	// remove icon: haste
-							OR
-							(opcode = 267 AND (~%strRef%~ STR_EQ "%c7__hasted_string%"))      // prevent string: hasted
-						) BEGIN
+						LPF FA_SHOULD_REMOVE_EFFECT INT_VAR off = off v2 = 0 RET fa_remove END
+						PATCH_IF fa_remove BEGIN
 							LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g END
 							PATCH_IF (g < f) BEGIN
 								--f
@@ -268,55 +181,23 @@ BEGIN
 						END
 					END
 				END
-				
-				LPF GET_FILE_SIZE STR_VAR file = EVAL ~%logFile%~ RET logLen = value END
-				FOR (i = 0; i < logLen; i += 8) BEGIN
-					LPF READ_LOG INT_VAR off = i STR_VAR file = EVAL ~%logFile%~ RET res = value END
-					FOR (g = fxNum - 1; g >= 0; --g) BEGIN
-						off = fxOff + g * 0x30
-						LPF READ_EFFECT 
-							INT_VAR	off = off
-							RET		opcode = opcode
-									targetB = target
-									param1 = param1
-									param2 = param2
-									prob1B = prob1
-									prob2B = prob2
-									resB = res
-									sTypeB = sType
-									sBonusB = sBonus
-						END
-						PATCH_IF (
-							targetB = target
-							AND prob1B = prob1
-							AND prob2B = prob2
-							AND sTypeB = sType
-							AND sBonusB = sBonus
-						) BEGIN									// effect is related
-							PATCH_IF (opcode = 206 AND (~%resB%~ STRING_EQUAL_CASE ~%res%~)) BEGIN
-								// remove protection from haste spell resource
-								LPF REMOVE_EFFECT INT_VAR abilLen = abilLen idx = g END
-								PATCH_IF (g < f) BEGIN
-									--f
-								END
-								--fxNum
-							END
-						END
-					END
-				END
+
 				
 				
 				// add immune: move mod -
-				LPF COPY_EFFECT
-					INT_VAR abilLen = abilLen
-							idx = f
-							toIdx = f + 1
-					RET		off = off
+				READ_SHORT (fxOff + f * 0x30) fa_source_opcode
+				PATCH_IF fa_source_opcode = 163 BEGIN
+					LPF COPY_EFFECT
+						INT_VAR abilLen = abilLen
+								idx = f
+								toIdx = f + 1
+						RET		off = off
+					END
+					WRITE_SHORT off 101				// immu: opcode
+					WRITE_LONG (off + 0x08) 126		// move mod -
+					++fxNum
+					// done adding
 				END
-				WRITE_SHORT off 101				// immu: opcode
-				WRITE_LONG (off + 0x08) 126		// move mod - 
-				++fxNum
-				// done adding
 				
 			END
 		END
@@ -338,6 +219,7 @@ BEGIN
 						prob1 = prob1		prob2 = prob2
 						sType = sType		sBonus = sBonus
 			END
+			LPF FA_INSPECT_EFFECT INT_VAR off = off v2 = 1 RET opcode = opcode param1 = param1 param2 = param2 fa_special = fa_special fa_effect_resource = fa_effect_resource END
 			PATCH_IF (opcode = 163) BEGIN	// Free Action
 				FOR (g = fxNum - 1; g >= 0; --g) BEGIN
 					off = fxOff + g * 0x108
@@ -348,47 +230,12 @@ BEGIN
 								prob1B = prob1		prob2B = prob2
 								sTypeB = sType		sBonusB = sBonus
 					END
+					LPF FA_INSPECT_EFFECT INT_VAR off = off v2 = 1 RET opcode = opcode param1 = param1 param2 = param2 fa_special = fa_special fa_effect_resource = fa_effect_resource END
 					PATCH_IF (
 						targetB = target
-						AND prob1B = prob1
-						AND prob2B = prob2
-						AND sTypeB = sType
-						AND sBonusB = sBonus
 					) BEGIN									// effect is related
-						READ_STRREF (off + 0x14) strRef
-                                                SET c7__c7__remove_this_effect = 0
-                                                PATCH_IF opcode == 206 BEGIN
-                                                  READ_ASCII (off + 0x28) c7__c7__resource
-                                                  INNER_PATCH_FILE "%c7__c7__resource%.spl" BEGIN
-                                                    READ_STRREF 0x8 c7__c7__spell_name
-                                                  END
-                                                  SPRINT c7__haste_name @223
-                                                  SPRINT c7__improved_haste_name @224
-                                                  SPRINT c7__hasted_string @225
-                                                  PATCH_IF ("%c7__c7__spell_name%" STR_EQ "%c7__improved_haste_name%" ||
-                                                            "%c7__c7__spell_name%" STR_EQ "%c7__haste_name%") BEGIN
-                                                    SET c7__c7__remove_this_effect = 1
-                                                  END
-                                                END
-                                                PATCH_IF (
-                                                        c7__c7__remove_this_effect == 1
-							OR
-							opcode = 126					// opcode: move mod -
-							OR 
-							opcode = 176					// opcode: move mod +
-							OR 
-							(opcode = 101 AND param2 = 16)	// immune: haste
-							OR
-							(opcode = 101 AND param2 = 126)	// immune: move mod -
-							OR 
-							(opcode = 101 AND param2 = 176)	// immune: move mod +
-							OR 
-							(opcode = 169 AND param2 = 38)	// prevent icon: haste
-							OR 
-							(opcode = 240 AND param2 = 38)	// remove icon: haste
-							OR
-							(opcode = 267 AND (~%strRef%~ STR_EQ "%c7__hasted_string%"))      // prevent string: hasted
-						) BEGIN
+						LPF FA_SHOULD_REMOVE_EFFECT INT_VAR off = off v2 = 1 RET fa_remove END
+						PATCH_IF fa_remove BEGIN
 							LPF REMOVE_EFFECT_CRE INT_VAR idx = g END
 							PATCH_IF (g < f) BEGIN
 								--f
@@ -397,51 +244,23 @@ BEGIN
 						END
 					END
 				END
-				
-				LPF GET_FILE_SIZE STR_VAR file = EVAL ~%logFile%~ RET logLen = value END
-				FOR (i = 0; i < logLen; i += 8) BEGIN
-					LPF READ_LOG INT_VAR off = i STR_VAR file = EVAL ~%logFile%~ RET res = value END
-					FOR (g = fxNum - 1; g >= 0; --g) BEGIN
-						off = fxOff + g * 0x108
-						LPF READ_EFFECT_CRE 
-							INT_VAR	off = off
-							RET		opcode = opcode		targetB = target
-									param1 = param1		param2 = param2
-									prob1B = prob1		prob2B = prob2
-									resB = res			sTypeB = sType
-									sBonusB = sBonus
-						END
-						PATCH_IF (
-							targetB = target
-							AND prob1B = prob1
-							AND prob2B = prob2
-							AND sTypeB = sType
-							AND sBonusB = sBonus
-						) BEGIN									// effect is related
-							PATCH_IF (opcode = 206 AND (~%resB%~ STRING_EQUAL_CASE ~%res%~)) BEGIN
-								// remove protection from haste spell resource
-								LPF REMOVE_EFFECT_CRE INT_VAR idx = g END
-								PATCH_IF (g < f) BEGIN
-									--f
-								END
-								--fxNum
-							END
-						END
-					END
-				END
+
 				
 				
 				
 				// add immune: move mod -
-				LPF COPY_EFFECT_CRE
-					INT_VAR idx = f
-							toIdx = f + 1
-					RET		off = off
+				READ_LONG (fxOff + f * 0x108 + 8) fa_source_opcode
+				PATCH_IF fa_source_opcode = 163 BEGIN
+					LPF COPY_EFFECT_CRE
+						INT_VAR idx = f
+								toIdx = f + 1
+						RET		off = off
+					END
+					WRITE_LONG (off + 0x08) 101		// immu: opcode
+					WRITE_LONG (off + 0x18) 126		// move mod -
+					++fxNum
+					// done adding
 				END
-				WRITE_LONG (off + 0x08) 101		// immu: opcode
-				WRITE_LONG (off + 0x18) 126		// move mod - 
-				++fxNum
-				// done adding
 			END
 		END
 	END
