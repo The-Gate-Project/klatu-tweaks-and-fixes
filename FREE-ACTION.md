@@ -1,11 +1,11 @@
-# Klatu Tweaks and Fixes: personal EET maintenance fork
+# Free Action and Haste compatibility
 
-Version **1.7.4-personal.1** extends component **2070**, "Free Action does not
+This change extends component **2070**, "Free Action does not
 prevent Haste or Movement Rate Bonus", and adds **2071**, a separate late
 compatibility repair using the same implementation. All original components
 and component numbers remain available. Original mod author: klatu.
 
-## Why this fork exists
+## Motivation
 
 An EET installation with SCS retained Haste blockers after installing the
 original tweak. Firecam Full-Plate Armor (`NPPLAT`, Keldorn's personal armor)
@@ -47,7 +47,7 @@ future mod implementations are not a universal guarantee.
 
 Install component **2070 or 2071 late**, after SCS, item/spell/kit mods, and EET's
 resource-generating stages. Later mods can create or reintroduce blockers;
-run the updated component after those changes. The personal fork's Project
+run the updated component after those changes. The Project
 Infinity metadata recommends installing after SCS (`stratagems`).
 
 For a new setup, extract the release into the game directory and run
@@ -60,7 +60,7 @@ new component **2071** after all other mods. This runs the complete repair at
 the end of the install order without needing to reinstall the earlier 2070.
 2071 also works if 2070 is absent. Both use the same idempotent patch.
 Use a copied installation for the first upgrade. Reinstalling an earlier
-WeiDU component can trigger reinstalls of later mods. This fork's development
+WeiDU component can trigger reinstalls of later mods. Development testing
 did not install either component into the live personal game.
 
 Restart the game after patching resources. Equipped items may need to be

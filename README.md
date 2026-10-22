@@ -1,8 +1,8 @@
-## Personal EET maintenance fork
+## Free Action / Haste compatibility
 
 Component 2070 and the new late repair component 2071 handle the Haste blockers found in Keldorn's armor, Flail
 of Ages +5, and other EET/SCS resources. See [changes, installation order, and
-validation](PERSONAL-CHANGES.md). Original author and upstream credits follow.
+validation](FREE-ACTION.md). Original author and upstream credits follow.
 
 ## Klatu Tweaks and Fixes
 
