@@ -101,3 +101,7 @@ also passed.
 - IESDP opcode reference: https://gibberlings3.github.io/iesdp/opcodes/bgee.htm
 - SCS implementation: `initial/immunities_via_324.tph` and its use of the
   dynamically allocated `HASTE_IMMUNITY` spell state.
+
+## Relocated ability table compatibility
+
+The shared ITM/SPL sanitizer now snapshots ability and effect sections before moving them. This preserves large relocated tables, including expanded Inquisitor Dispel Magic. A 255-header regression checks every original effect and a second application.

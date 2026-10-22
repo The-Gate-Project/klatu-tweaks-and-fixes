@@ -202,6 +202,12 @@ LAF FA_IMPLEMENT_FREE_ACTION STR_VAR logFile = ~klatu/log/freeAction.txt~ END
         (out / "Z#SPEEDI.ITM").write_bytes(resource("ITM", [fa, effect(177, resource="Z#SPEED"), effect(177, resource="Z#SLOW")]))
         (out / "Z#NOFREE.ITM").write_bytes(resource("ITM", modern))
         (out / "Z#TARGS.ITM").write_bytes(resource("ITM", [fa, effect(101, 16, target=2)]))
+        # A relocated, large ability table must survive the common sanitizer.
+        canonical = resource("SPL", [effect(101, 40)], [[effect(58, 2, 15)] for _ in range(255)])
+        relocated = bytearray(canonical[:0x72] + bytes(160) + canonical[0x72:])
+        put(relocated, 0x64, 0x72 + 160)
+        put(relocated, 0x6A, struct.unpack_from("<I", canonical, 0x6A)[0] + 160)
+        (out / "Z#LAYOUT.SPL").write_bytes(relocated)
         before = {}
         if args.snapshots:
             before = {p.name.upper(): p.read_bytes() for p in args.snapshots.iterdir()
@@ -272,6 +278,7 @@ LAF FA_IMPLEMENT_FREE_ACTION STR_VAR logFile = ~klatu/log/freeAction.txt~ END
                             if old_v2 == new_v2:
                                 assert old in new_group, (name, "unrelated effect changed", op, param)
             print(f"PASS: real-resource audit: {real_scopes} Free Action scopes; {real_blockers} modern/legacy Haste blockers removed")
+        assert groups(after["Z#LAYOUT.SPL"]) == groups(bytes(relocated)), "Relocated ability/effect table corrupted"
         # Invoke the same component again without uninstalling: byte-for-byte stability.
         second = game / "second.tp2"
         second.write_text(tp2.read_text().replace('BACKUP ~test-backup~', 'BACKUP ~second-backup~'))

@@ -173,21 +173,28 @@ common.tpa
 			READ_SHORT 0x6e fxIdx
 			READ_SHORT 0x70 fxNum
 			PATCH_IF ((fxOff >= 0x72 AND fxOff <= off) AND (abilNum = 0 OR (abilOff >= 0x72 AND abilOff <= (off - abilNum * abilLen)))) BEGIN
-				abilSize = abilNum * abilLen
-				PATCH_IF (abilOff != 0x72) BEGIN
-					PATCH_IF (abilSize != 0) BEGIN
-						INSERT_BYTES 0x72 abilSize
-						LPF COPY_BYTES INT_VAR src = abilOff + abilSize dst = 0x72 len = abilSize END
-						DELETE_BYTES abilOff abilSize
-						fxOff += abilSize
-					END
-					WRITE_LONG 0x64 0x72
-				END
-				gapLen = fxOff - 0x72 - abilSize
-				fxOff = 0x72 + abilSize
-				DELETE_BYTES fxOff gapLen
-				WRITE_LONG 0x6a fxOff
-				off -= gapLen
+                // Snapshot both sections before moving them. Deleting at the old
+                // ability offset after insertion can cut through a large table.
+                abilSize = abilNum * abilLen
+                extent = fxIdx + fxNum
+                FOR (ab = 0; ab < abilNum; ++ab) BEGIN
+                    READ_SHORT (abilOff + ab * abilLen + 0x1e) count
+                    READ_SHORT (abilOff + ab * abilLen + 0x20) first
+                    PATCH_IF first + count > extent BEGIN extent = first + count END
+                END
+                PATCH_IF fxOff + extent * 48 > SOURCE_SIZE BEGIN
+                    PATCH_FAIL ~Klatu: effect table exceeds resource size.~
+                END
+                READ_ASCII abilOff klatu_abilities (abilSize)
+                READ_ASCII fxOff klatu_effects (extent * 48)
+                DELETE_BYTES 0x72 (SOURCE_SIZE - 0x72)
+                INSERT_BYTES 0x72 (abilSize + extent * 48)
+                WRITE_ASCIIE 0x72 ~%klatu_abilities%~ (abilSize)
+                fxOff = 0x72 + abilSize
+                WRITE_ASCIIE fxOff ~%klatu_effects%~ (extent * 48)
+                WRITE_LONG 0x64 0x72
+                WRITE_LONG 0x6a fxOff
+                off = SOURCE_SIZE
 				afxCount = 0
 				proceed = 0
 				maxExtent = fxIdx + fxNum
