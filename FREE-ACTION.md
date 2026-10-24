@@ -45,10 +45,16 @@ future mod implementations are not a universal guarantee.
 
 ## Installation
 
-Install component **2070 or 2071 late**, after SCS, item/spell/kit mods, and EET's
-resource-generating stages. Later mods can create or reintroduce blockers;
-run the updated component after those changes. The Project
-Infinity metadata recommends installing after SCS (`stratagems`).
+Install component **2070 or 2071 late**, after any installed item/spell/kit mods
+and resource-generating stages. If SCS is installed, run the compatibility pass
+after SCS as well. Later mods can create or reintroduce blockers; run the updated
+component after those changes.
+
+**SCS is optional, not a dependency.** The Project Infinity `After` entry for
+`stratagems` recommends placing Klatu after SCS when both are installed. This
+metadata applies to the whole mod; the reason for the recommendation is the
+Free Action compatibility pass in components 2070 and 2071. It does not mean
+that the other Klatu components require SCS.
 
 For a new setup, extract the release into the game directory and run
 `setup-klatu.exe`, selecting component 2070. Other components are optional.
@@ -69,11 +75,13 @@ be recast. Already serialized effects in existing saves are not rewritten.
 
 ## Validation
 
-The tests run the actual WeiDU patcher in a temporary, minimal game directory:
+The tests under `klatu/tests` run the actual WeiDU patcher in a temporary,
+minimal game directory. They are development checks; players do not need
+Python to install or use the mod. Run these commands from the repository root:
 
 ```text
-python tests/test_free_action.py --weidu /path/to/weidu
-python tests/test_free_action.py --weidu /path/to/weidu --without-state
+python klatu/tests/test_free_action.py --weidu /path/to/weidu
+python klatu/tests/test_free_action.py --weidu /path/to/weidu --without-state
 ```
 
 They exercise modern and legacy Haste blockers, a relocated spell-state ID,

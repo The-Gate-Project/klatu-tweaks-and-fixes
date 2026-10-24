@@ -1,6 +1,6 @@
 """Integration regression tests using the real WeiDU patcher in a disposable game.
 
-Run: python tests/test_free_action.py --weidu PATH_TO_WEIDU
+Run: python klatu/tests/test_free_action.py --weidu PATH_TO_WEIDU
 No actual game installation is modified.
 """
 import argparse
@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def put(b, offset, value, fmt="I"):
