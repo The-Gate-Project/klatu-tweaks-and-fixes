@@ -1184,6 +1184,18 @@ LANGUAGE ~German~
 			STR_VAR logFile = ~klatu/log/freeAction.txt~
 		END
 
+        // A separate late component avoids reinstalling an earlier 2070 and
+        // then having later SCS/kit/item components overwrite the repair.
+        BEGIN @227 DESIGNATED 2071
+        LABEL KLATU-FREE-ACTION-HASTE-LATE-REPAIR
+        GROUP @45
+        REQUIRE_PREDICATE GAME_IS ~soa tob tutu tutu_totsc bgt iwd_in_bg2 bgee bg2ee eet iwdee~ @2
+        INCLUDE ~klatu/lib/common.tpa~
+        INCLUDE ~klatu/lib/freeAction.tpa~
+        LAF FA_IMPLEMENT_FREE_ACTION
+            STR_VAR logFile = ~klatu/log/freeAction.txt~
+        END
+
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
 	/////                                                       /////

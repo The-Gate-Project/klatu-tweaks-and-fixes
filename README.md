@@ -25,3 +25,14 @@
 This mod consists of a collection of minor and major tweaks that touch on many different aspects of the game. Please read the description of each component carefully.
 
 ### [Full readme](https://htmlpreview.github.io/?https://github.com/The-Gate-Project/klatu-tweaks-and-fixes-tweaks-and-fixes/blob/master/klatu-tweaks-and-fixes/readme-klatu-tweaks-and-fixes.html)
+
+## Optional component: Free Action / Haste compatibility
+
+Component **2070** has an expanded Free Action / Haste compatibility pass.
+The optional late repair component **2071** runs the same pass after other mods,
+without reinstalling an earlier 2070. It also works without 2070.
+
+These components handle Haste blockers found in Keldorn's armor, Flail of Ages +5,
+and other resources. If SCS is installed, run the compatibility pass after SCS.
+**SCS is optional, not a dependency.** See [changes, installation order, and
+validation](FREE-ACTION.md).

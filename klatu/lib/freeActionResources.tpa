@@ -1,0 +1,213 @@
+// Discover behavior from resources rather than translated names or EET resrefs.
+// Bit 0: applies Haste (16/317); bit 1: applies Free Action (163).
+// Fixed-point propagation terminates even when helper spells form cycles.
+DEFINE_ACTION_FUNCTION FA_REWRITE_EXTERNAL_MOVEMENT BEGIN
+    COPY_EXISTING_REGEXP GLOB ~^.+\.eff$~ ~override~
+        PATCH_IF BUFFER_LENGTH >= 0x110 BEGIN
+            READ_ASCII 0 fa_signature (8)
+            PATCH_IF ~%fa_signature%~ STRING_EQUAL ~EFF V2.0~ BEGIN
+                READ_LONG 0x10 fa_op
+                PATCH_IF fa_op = 126 OR fa_op = 176 BEGIN
+                    READ_SLONG 0x1c fa_amount
+                    READ_LONG 0x20 fa_mode
+                    SET fa_negative = ((fa_mode = 0 AND fa_amount < 0)
+                        OR (fa_mode = 1 AND fa_amount < 10)
+                        OR (fa_mode = 2 AND fa_amount < 100))
+                    PATCH_IF fa_negative BEGIN
+                        WRITE_LONG 0x10 126
+                    END ELSE BEGIN
+                        WRITE_LONG 0x10 176
+                    END
+                END
+            END
+        END
+    BUT_ONLY
+END
+
+DEFINE_PATCH_MACRO FA_RECORD_RESOURCE_EFFECT
+BEGIN
+    PATCH_IF fa_record_v2 BEGIN
+        READ_LONG (fa_record_off + 8) fa_op
+        READ_ASCII (fa_record_off + 0x28) fa_ref (8) NULL
+    END ELSE BEGIN
+        READ_SHORT fa_record_off fa_op
+        READ_ASCII (fa_record_off + 0x14) fa_ref (8) NULL
+    END
+    TO_UPPER fa_ref
+    PATCH_IF (fa_op = 16 OR fa_op = 317) BEGIN
+        SET $fa_resource_flags(~%fa_file%~) = ($fa_resource_flags(~%fa_file%~) BOR 1)
+    END
+    PATCH_IF fa_op = 163 BEGIN
+        SET $fa_resource_flags(~%fa_file%~) = ($fa_resource_flags(~%fa_file%~) BOR 2)
+    END
+    PATCH_IF (fa_op = 146 OR fa_op = 148 OR fa_op = 232 OR fa_op = 326) BEGIN
+        SPRINT $fa_resource_links(~%fa_file%~ ~%fa_ref%.SPL~) ~~
+    END
+    PATCH_IF (fa_op = 177 OR fa_op = 183 OR fa_op = 248 OR fa_op = 249 OR fa_op = 272) BEGIN
+        SPRINT $fa_resource_links(~%fa_file%~ ~%fa_ref%.EFF~) ~~
+    END
+END
+
+// The caller restricts this to a Free Action scope and the same recipient.
+// Deliberately do not require matching saves/probability: converted SCS effects
+// and many equipped immunities have different metadata from opcode 163.
+DEFINE_PATCH_FUNCTION FA_SHOULD_REMOVE_EFFECT
+    INT_VAR off = 0 v2 = 0
+    RET fa_remove
+BEGIN
+    LPF FA_INSPECT_EFFECT INT_VAR off v2
+        RET opcode param1 param2 fa_special fa_effect_resource
+    END
+    SET fa_remove = (
+        ((opcode = 101 OR opcode = 337) AND (param2 = 16 OR param2 = 317))
+        OR (opcode = 328 AND fa_haste_state >= 0 AND param2 = fa_haste_state AND fa_special = 1)
+        OR opcode = 126
+        OR (opcode = 176 AND ((param2 = 0 AND param1 = 0)
+            OR (param2 = 1 AND param1 <= 10) OR (param2 = 2 AND param1 <= 100)))
+        OR (opcode = 101 AND (param2 = 126 OR param2 = 176))
+        OR ((opcode = 169 OR opcode = 240) AND param2 = 38)
+    )
+    PATCH_IF opcode = 206 BEGIN
+        PATCH_IF VARIABLE_IS_SET $fa_resource_flags(~%fa_effect_resource%.SPL~) BEGIN
+            SET fa_remove = ($fa_resource_flags(~%fa_effect_resource%.SPL~) BAND 1)
+        END
+    END
+    PATCH_IF opcode = 267 BEGIN
+        PATCH_IF param1 = RESOLVE_STR_REF (@225) BEGIN
+            SET fa_remove = 1
+        END
+    END
+END
+
+DEFINE_ACTION_FUNCTION FA_BUILD_RESOURCE_GRAPH
+    RET fa_haste_state
+    RET_ARRAY fa_resource_flags
+BEGIN
+    ACTION_CLEAR_ARRAY fa_resource_flags
+    ACTION_CLEAR_ARRAY fa_resource_links
+    OUTER_SET fa_haste_state = (0 - 1)
+    // SCS allocates this dynamically; 138 is not portable between installs.
+    ACTION_IF FILE_EXISTS_IN_GAME ~splstate.ids~ BEGIN
+        COPY_EXISTING ~splstate.ids~ ~override~
+            READ_2DA_ENTRIES_NOW fa_states 2
+            FOR (fa_row = 0; fa_row < fa_states; ++fa_row) BEGIN
+                READ_2DA_ENTRY_FORMER fa_states fa_row 0 fa_number
+                READ_2DA_ENTRY_FORMER fa_states fa_row 1 fa_symbol
+                PATCH_IF (~%fa_symbol%~ STRING_EQUAL_CASE ~HASTE_IMMUNITY~ AND IS_AN_INT fa_number) BEGIN
+                    SET fa_haste_state = fa_number
+                END
+            END
+        BUT_ONLY
+    END
+    COPY_EXISTING_REGEXP GLOB ~^.+\.spl$~ ~override~
+        SPRINT fa_file ~%SOURCE_RES%.SPL~
+        TO_UPPER fa_file
+        SET $fa_resource_flags(~%fa_file%~) = 0
+        PATCH_IF BUFFER_LENGTH >= 0x72 BEGIN
+            READ_ASCII 0 fa_signature (8)
+            PATCH_IF ~%fa_signature%~ STRING_EQUAL ~SPL V1  ~ BEGIN
+                READ_LONG 0x64 fa_abilities
+                READ_SHORT 0x68 fa_count
+                READ_LONG 0x6a fa_effects
+                READ_SHORT 0x6e fa_first
+                READ_SHORT 0x70 fa_global
+                SET fa_extent = fa_first + fa_global
+                PATCH_IF fa_abilities + 0x28 * fa_count <= BUFFER_LENGTH BEGIN
+                    FOR (fa_a = 0; fa_a < fa_count; ++fa_a) BEGIN
+                        READ_SHORT (fa_abilities + fa_a * 0x28 + 0x1e) fa_n
+                        READ_SHORT (fa_abilities + fa_a * 0x28 + 0x20) fa_i
+                        SET fa_extent = (fa_extent > fa_i + fa_n ? fa_extent : fa_i + fa_n)
+                    END
+                    PATCH_IF fa_effects >= 0x72 AND fa_effects + 0x30 * fa_extent <= BUFFER_LENGTH BEGIN
+                        FOR (fa_i = 0; fa_i < fa_extent; ++fa_i) BEGIN
+                            SET fa_record_off = fa_effects + 0x30 * fa_i
+                            SET fa_record_v2 = 0
+                            LPM FA_RECORD_RESOURCE_EFFECT
+                        END
+                    END
+                END
+            END
+        END
+    BUT_ONLY
+    COPY_EXISTING_REGEXP GLOB ~^.+\.eff$~ ~override~
+        SPRINT fa_file ~%SOURCE_RES%.EFF~
+        TO_UPPER fa_file
+        SET $fa_resource_flags(~%fa_file%~) = 0
+        PATCH_IF BUFFER_LENGTH >= 0x110 BEGIN
+            READ_ASCII 0 fa_signature (8)
+            PATCH_IF ~%fa_signature%~ STRING_EQUAL ~EFF V2.0~ BEGIN
+                // Standalone EFF V2 has an extra 8-byte file signature.
+                SET fa_record_off = 8
+                SET fa_record_v2 = 1
+                LPM FA_RECORD_RESOURCE_EFFECT
+            END
+        END
+    BUT_ONLY
+    OUTER_SET fa_changed = 1
+    OUTER_WHILE fa_changed BEGIN
+        OUTER_SET fa_changed = 0
+        ACTION_PHP_EACH fa_resource_links AS fa_pair => fa_unused BEGIN
+            ACTION_IF VARIABLE_IS_SET $fa_resource_flags(~%fa_pair_1%~) BEGIN
+                OUTER_SET fa_before = $fa_resource_flags(~%fa_pair_0%~)
+                OUTER_SET fa_after = (fa_before BOR $fa_resource_flags(~%fa_pair_1%~))
+                ACTION_IF fa_before != fa_after BEGIN
+                    OUTER_SET $fa_resource_flags(~%fa_pair_0%~) = fa_after
+                    OUTER_SET fa_changed = 1
+                END
+            END
+        END
+    END
+END
+
+// Resolve single-effect EFF indirection without editing shared EFF files.
+// Removing a wrapper removes just this invocation, leaving unrelated users intact.
+DEFINE_PATCH_FUNCTION FA_INSPECT_EFFECT
+    INT_VAR off = 0 v2 = 0
+    RET opcode param1 param2 fa_special fa_effect_resource
+BEGIN
+    PATCH_IF v2 BEGIN
+        READ_LONG (off + 8) opcode
+        READ_LONG (off + 0x14) param1
+        READ_LONG (off + 0x18) param2
+        READ_LONG (off + 0x40) fa_special
+        READ_ASCII (off + 0x28) fa_effect_resource (8) NULL
+    END ELSE BEGIN
+        READ_SHORT off opcode
+        READ_LONG (off + 4) param1
+        READ_LONG (off + 8) param2
+        READ_LONG (off + 0x2c) fa_special
+        READ_ASCII (off + 0x14) fa_effect_resource (8) NULL
+    END
+    SET fa_depth = 0
+    WHILE (opcode = 177 AND fa_depth < 32) BEGIN
+        SET fa_depth += 1
+        PATCH_IF FILE_EXISTS_IN_GAME ~%fa_effect_resource%.eff~ BEGIN
+            INNER_PATCH_FILE ~%fa_effect_resource%.eff~ BEGIN
+                PATCH_IF BUFFER_LENGTH >= 0x110 BEGIN
+                    READ_ASCII 0 fa_signature (8)
+                    PATCH_IF ~%fa_signature%~ STRING_EQUAL ~EFF V2.0~ BEGIN
+                        READ_LONG 0x10 opcode
+                        READ_LONG 0x1c param1
+                        READ_LONG 0x20 param2
+                        READ_LONG 0x48 fa_special
+                        READ_ASCII 0x30 fa_effect_resource (8) NULL
+                    END ELSE BEGIN
+                        SET fa_depth = 32
+                    END
+                END ELSE BEGIN
+                    SET fa_depth = 32
+                END
+            END
+        END ELSE BEGIN
+            SET fa_depth = 32
+        END
+    END
+    TO_UPPER fa_effect_resource
+    PATCH_IF (opcode = 146 OR opcode = 148 OR opcode = 232 OR opcode = 326) BEGIN
+        PATCH_IF VARIABLE_IS_SET $fa_resource_flags(~%fa_effect_resource%.SPL~) BEGIN
+            PATCH_IF ($fa_resource_flags(~%fa_effect_resource%.SPL~) BAND 2) != 0 BEGIN
+                SET opcode = 163
+            END
+        END
+    END
+END
